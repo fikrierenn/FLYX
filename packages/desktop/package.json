@@ -1,0 +1,21 @@
+{
+  "name": "@flyx/desktop",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./dist/main/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest run --passWithNoTests",
+    "start": "electron ./dist/main/index.js"
+  },
+  "dependencies": {
+    "@flyx/fsl-compiler": "*",
+    "@flyx/database-engine": "*",
+    "@flyx/ui": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "vitest": "^1.6.0"
+  }
+}

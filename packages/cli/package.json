@@ -1,0 +1,29 @@
+{
+  "name": "@flyx/cli",
+  "version": "0.1.0",
+  "private": true,
+  "bin": {
+    "flyx": "./dist/index.js"
+  },
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@flyx/fsl-compiler": "*",
+    "@flyx/database-engine": "*",
+    "commander": "^12.0.0",
+    "inquirer": "^9.2.0",
+    "chalk": "^5.3.0",
+    "ora": "^8.0.0",
+    "fs-extra": "^11.2.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "vitest": "^1.6.0",
+    "@types/fs-extra": "^11.0.0",
+    "@types/inquirer": "^9.0.0"
+  }
+}
