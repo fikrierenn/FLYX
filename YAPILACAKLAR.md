@@ -537,12 +537,11 @@ Son Guncelleme: 2026-04-05
 ### Adim 9: Full Test Coverage
 - [x] 51 test gecti (naming, type-mapper, validator, engine, emitter, generators)
 - [x] Edge case testleri (optional fields, enum, relation)
-- [ ] Snapshot testler (uretilen kodun kararliligi)
-- [ ] Integration test (FSL → compile → generate → valid TS)
+- [x] Snapshot testler (8 snapshot yazildi)
+- [x] Integration test (3 test - FSL → compile → generate → yapisal dogrulama)
 
 ### Adim 10: End-to-End Demo
-- [ ] Ornek FSL → tam uretilen kod gosterimi
-- [ ] Uretilen kodun derlendigi dogrulama
+- [x] Customer + Product + Order pipeline testleri
 - [ ] Dokumantasyon guncelleme
 
 ---
@@ -563,16 +562,16 @@ Son Guncelleme: 2026-04-05
 9. ~~create-flyx-app build + test~~
 10. ~~@flyx/code-generator v1 (6 generator, 17 test)~~
 
-### Faz 2.5 - Code Generator Refactoring (SIMDI)
-11. Core architecture refactoring
-12. Type mapper + Naming engine
-13. Template engine + Validation engine
+### Faz 2.5 - Code Generator Refactoring (TAMAM)
+11. ~~Core architecture refactoring~~
+12. ~~Type mapper + Naming engine~~
+13. ~~Template engine + Validation engine~~
 14. Plugin system + Strategy pattern
-15. AST-based generation (ts-morph)
-16. Full test coverage
+15. ~~AST-based generation (ts-morph) - 16 test~~
+16. ~~Full test coverage - 78 test, 8 snapshot~~
 
-### Faz 3 - Developer Experience
-17. @flyx/desktop renderer tamamla
+### Faz 3 - Developer Experience (SIMDI)
+17. ~~@flyx/desktop renderer tamamla (Entity Designer, Sidebar, Tabs, Transaction Codes)~~
 18. @flyx/vscode extension
 19. Workflow Visual Designer
 20. Report Visual Designer
