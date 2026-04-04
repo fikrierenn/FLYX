@@ -8,6 +8,7 @@
  * - /entities → Entity Designer (FSL editörü)
  * - /forms → Form Designer (sürükle-bırak form oluşturucu)
  * - /workflows → Workflow Designer (görsel iş akışı tasarımcısı)
+ * - /reports → Report Designer (görsel rapor tasarımcısı)
  */
 
 import { Routes, Route } from 'react-router-dom';
@@ -15,6 +16,7 @@ import { DashboardPage } from './pages/Dashboard/DashboardPage';
 import { EntitiesPage } from './pages/Entities/EntitiesPage';
 import { FormsPage } from './pages/Forms/FormsPage';
 import { WorkflowsPage } from './pages/Workflows/WorkflowsPage';
+import { ReportsPage } from './pages/Reports/ReportsPage';
 
 export function App() {
   return (
@@ -27,6 +29,7 @@ export function App() {
             <a href="/entities" className="text-gray-600 hover:text-primary-600">Entities</a>
             <a href="/forms" className="text-gray-600 hover:text-primary-600">Forms</a>
             <a href="/workflows" className="text-gray-600 hover:text-primary-600">Workflows</a>
+            <a href="/reports" className="text-gray-600 hover:text-primary-600">Reports</a>
           </div>
         </div>
       </nav>
@@ -36,6 +39,7 @@ export function App() {
           <Route path="/entities" element={<EntitiesPage />} />
           <Route path="/forms" element={<FormsPage />} />
           <Route path="/workflows" element={<WorkflowsPage />} />
+          <Route path="/reports" element={<ReportsPage />} />
         </Routes>
       </main>
     </div>
