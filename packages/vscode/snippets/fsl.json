@@ -1,0 +1,113 @@
+{
+  "Entity": {
+    "prefix": "entity",
+    "description": "Yeni FSL entity tanimlama",
+    "body": [
+      "entity ${1:EntityName} {",
+      "  fields {",
+      "    ${2:code}: String(50) { required, unique, indexed }",
+      "    ${3:name}: String(200) { required }",
+      "    ${4:status}: Enum {",
+      "      values: [\"active\", \"inactive\"],",
+      "      default: \"active\"",
+      "    }",
+      "  }",
+      "",
+      "  permissions {",
+      "    create: [\"admin\"]",
+      "    read: [\"admin\", \"user\"]",
+      "    update: [\"admin\"]",
+      "    delete: [\"admin\"]",
+      "  }",
+      "}"
+    ]
+  },
+  "Form": {
+    "prefix": "form",
+    "description": "Yeni FSL form tanimlama",
+    "body": [
+      "form ${1:EntityName}Form {",
+      "  entity: ${1:EntityName}",
+      "  layout: \"${2|single,two_column|}\"",
+      "",
+      "  sections {",
+      "    main {",
+      "      label: \"${3:Genel Bilgiler}\"",
+      "      fields: [\"${4:code}\", \"${5:name}\"]",
+      "    }",
+      "  }",
+      "",
+      "  actions {",
+      "    save { label: \"Kaydet\", style: \"primary\" }",
+      "    cancel { label: \"Iptal\" }",
+      "  }",
+      "}"
+    ]
+  },
+  "Report": {
+    "prefix": "report",
+    "description": "Yeni FSL rapor tanimlama",
+    "body": [
+      "report ${1:ReportName} {",
+      "  title: \"${2:Rapor Basligi}\"",
+      "",
+      "  parameters {",
+      "    date_range: DateRange { default: \"this_month\" }",
+      "  }",
+      "",
+      "  columns {",
+      "    ${3:name} { label: \"${4:Isim}\" }",
+      "    ${5:total} { label: \"${6:Toplam}\", format: \"currency\" }",
+      "  }",
+      "}"
+    ]
+  },
+  "Workflow": {
+    "prefix": "workflow",
+    "description": "Yeni FSL is akisi tanimlama",
+    "body": [
+      "workflow ${1:WorkflowName} {",
+      "  trigger: on_create(${2:Entity})",
+      "",
+      "  steps {",
+      "    ${3:check} {",
+      "      condition: this.${4:total} > ${5:10000}",
+      "",
+      "      if_true {",
+      "        approval {",
+      "          assignee: \"${6:manager}\"",
+      "          timeout: \"2 days\"",
+      "        }",
+      "      }",
+      "",
+      "      if_false {",
+      "        auto_approve {",
+      "          send_email({",
+      "            to: this.${7:customer}.email,",
+      "            template: \"approved\"",
+      "          });",
+      "        }",
+      "      }",
+      "    }",
+      "  }",
+      "}"
+    ]
+  },
+  "Field": {
+    "prefix": "field",
+    "description": "Yeni alan tanimlama",
+    "body": "${1:name}: ${2|String,Number,Decimal,Boolean,Date,DateTime,Email,Phone,URL,Text,JSON,Enum,Relation|}${3:(${4:200})} { ${5|required,unique,indexed,default|} }"
+  },
+  "Trigger After Create": {
+    "prefix": "trigger-after",
+    "description": "after_create tetikleyici",
+    "body": [
+      "after_create {",
+      "  send_email({",
+      "    to: this.${1:email},",
+      "    template: \"${2:welcome}\"",
+      "  });",
+      "}"
+    ]
+  }
+}

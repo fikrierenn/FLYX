@@ -1,0 +1,69 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "FSL",
+  "scopeName": "source.fsl",
+  "patterns": [
+    { "include": "#comments" },
+    { "include": "#strings" },
+    { "include": "#numbers" },
+    { "include": "#keywords" },
+    { "include": "#types" },
+    { "include": "#constraints" },
+    { "include": "#triggers" },
+    { "include": "#constants" },
+    { "include": "#operators" }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        { "name": "comment.line.double-slash.fsl", "match": "//.*$" },
+        { "name": "comment.block.fsl", "begin": "/\\*", "end": "\\*/", "patterns": [{ "name": "comment.block.fsl" }] }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        { "name": "string.quoted.double.fsl", "begin": "\"", "end": "\"", "patterns": [{ "name": "constant.character.escape.fsl", "match": "\\\\." }] }
+      ]
+    },
+    "numbers": {
+      "patterns": [
+        { "name": "constant.numeric.fsl", "match": "\\b\\d+(\\.\\d+)?\\b" }
+      ]
+    },
+    "keywords": {
+      "patterns": [
+        { "name": "keyword.declaration.fsl", "match": "\\b(module|entity|form|report|workflow|dashboard)\\b" },
+        { "name": "keyword.block.fsl", "match": "\\b(fields|methods|permissions|validation|triggers|sections|actions|parameters|columns|visualizations|steps)\\b" },
+        { "name": "keyword.control.fsl", "match": "\\b(if|else|for|while|return|let|const)\\b" },
+        { "name": "keyword.operator.logical.fsl", "match": "\\b(and|or|not)\\b" }
+      ]
+    },
+    "types": {
+      "patterns": [
+        { "name": "support.type.fsl", "match": "\\b(String|Number|Decimal|Boolean|Date|DateTime|DateRange|Email|Phone|URL|Text|JSON|Enum|Relation|File|Image|Array|Money|Computed|Lookup)\\b" }
+      ]
+    },
+    "constraints": {
+      "patterns": [
+        { "name": "storage.modifier.fsl", "match": "\\b(required|unique|indexed|default|min|max|pattern|optional|many)\\b" }
+      ]
+    },
+    "triggers": {
+      "patterns": [
+        { "name": "entity.name.function.trigger.fsl", "match": "\\b(after_create|after_update|after_delete|before_create|before_update|before_delete|on_create)\\b" }
+      ]
+    },
+    "constants": {
+      "patterns": [
+        { "name": "constant.language.fsl", "match": "\\b(true|false|this)\\b" }
+      ]
+    },
+    "operators": {
+      "patterns": [
+        { "name": "keyword.operator.comparison.fsl", "match": "(==|!=|<=|>=|<|>)" },
+        { "name": "keyword.operator.assignment.fsl", "match": "=" },
+        { "name": "keyword.operator.arithmetic.fsl", "match": "[+\\-*/%]" }
+      ]
+    }
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "name": "flyx-vscode",
+  "displayName": "FLYX Platform - FSL Language Support",
+  "description": "FSL (FLYX Script Language) syntax highlighting, autocomplete, and diagnostics",
+  "version": "0.1.0",
+  "publisher": "flyx",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": ["Programming Languages", "Snippets", "Linters"],
+  "main": "./dist/extension.js",
+  "activationEvents": ["onLanguage:fsl"],
+  "contributes": {
+    "languages": [{
+      "id": "fsl",
+      "aliases": ["FSL", "FLYX Script Language"],
+      "extensions": [".fsl"],
+      "configuration": "./language-configuration.json"
+    }],
+    "grammars": [{
+      "language": "fsl",
+      "scopeName": "source.fsl",
+      "path": "./syntaxes/fsl.tmLanguage.json"
+    }],
+    "snippets": [{
+      "language": "fsl",
+      "path": "./snippets/fsl.json"
+    }],
+    "commands": [
+      { "command": "flyx.compile", "title": "FLYX: Compile FSL" },
+      { "command": "flyx.generateSQL", "title": "FLYX: Generate SQL" },
+      { "command": "flyx.previewForm", "title": "FLYX: Preview Form" }
+    ]
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "@types/vscode": "^1.85.0"
+  },
+  "dependencies": {
+    "@flyx/fsl-compiler": "*"
+  }
+}
