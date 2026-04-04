@@ -18,6 +18,7 @@
  */
 
 import type { EntityDeclaration, FieldDeclaration } from '@flyx/fsl-compiler';
+import { mapToTSType } from '../../core/type-mapper/index.js';
 
 /**
  * NestJS DTO üretici sınıfı.
@@ -118,7 +119,7 @@ export class ${updateDto} extends PartialType(${createDto}) {}`;
       decorators.push('@IsOptional()');
     }
 
-    const tsType = this.mapToTSType(field.dataType.name);
+    const tsType = mapToTSType(field.dataType);
     const optional = !isRequired ? '?' : '';
     // Varsayılan değer varsa TypeScript atama söz dizimi ile ekle
     const defaultVal = field.constraints?.default !== undefined
@@ -126,24 +127,6 @@ export class ${updateDto} extends PartialType(${createDto}) {}`;
       : '';
 
     return `${decorators.join('\n  ')}\n  ${field.name}${optional}: ${tsType}${defaultVal};`;
-  }
-
-  /**
-   * FSL veri tipini TypeScript tipine dönüştürür.
-   * Bu, type-mapper modülünün basitleştirilmiş bir kopyasıdır
-   * (DTO generator'ın bağımsız çalışabilmesi için).
-   */
-  private mapToTSType(fslType: string): string {
-    const map: Record<string, string> = {
-      String: 'string', Email: 'string', Phone: 'string', URL: 'string',
-      Text: 'string', Enum: 'string',
-      Number: 'number', Decimal: 'number', Money: 'number',
-      Boolean: 'boolean',
-      Date: 'string', DateTime: 'string',
-      JSON: 'Record<string, any>',
-      Relation: 'string',
-    };
-    return map[fslType] || 'any';
   }
 
   /**

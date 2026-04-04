@@ -18,7 +18,7 @@
  */
 
 import type { EntityDeclaration } from '@flyx/fsl-compiler';
-import { toCamelCase, toPlural } from '../../utils/string-helpers.js';
+import { toCamelCase, toPlural } from '../../core/naming/index.js';
 
 /**
  * NestJS Controller üretici sınıfı.

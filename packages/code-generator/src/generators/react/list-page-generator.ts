@@ -26,7 +26,7 @@
  */
 
 import type { EntityDeclaration, FieldDeclaration } from '@flyx/fsl-compiler';
-import { toCamelCase, toPlural, fieldLabel } from '../../utils/string-helpers.js';
+import { toCamelCase, toPlural, toLabel } from '../../core/naming/index.js';
 
 /**
  * React liste sayfası üretici sınıfı.
@@ -52,7 +52,7 @@ export class ReactListPageGenerator {
 
     // Tablo başlık hücrelerini üret (her alan için bir <th>)
     const headers = visibleFields
-      .map((f) => `              <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">${fieldLabel(f.name)}</th>`)
+      .map((f) => `              <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">${toLabel(f.name)}</th>`)
       .join('\n');
 
     // Tablo veri hücrelerini üret (veri tipine göre özel gösterim)

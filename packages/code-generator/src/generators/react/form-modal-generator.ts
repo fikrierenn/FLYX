@@ -23,7 +23,8 @@
  */
 
 import type { EntityDeclaration, FieldDeclaration } from '@flyx/fsl-compiler';
-import { toCamelCase, fieldLabel } from '../../utils/string-helpers.js';
+import { toCamelCase, toLabel } from '../../core/naming/index.js';
+import { mapToInputType, getDefaultValue } from '../../core/type-mapper/index.js';
 
 /**
  * React form modal üretici sınıfı.
@@ -50,7 +51,7 @@ export class ReactFormModalGenerator {
 
     // Form'un başlangıç state'i - düzenleme modunda entity değerleri, yoksa varsayılanlar
     const initialState = editableFields
-      .map((f) => `    ${f.name}: ${nameVar}?.${f.name} ?? ${this.defaultValue(f)},`)
+      .map((f) => `    ${f.name}: ${nameVar}?.${f.name} ?? ${getDefaultValue(f)},`)
       .join('\n');
 
     // Her alan için uygun form elemanı (input, select, textarea, checkbox)
@@ -76,7 +77,7 @@ ${initialState}
   useEffect(() => {
     if (${nameVar}) {
       setFormData({
-${editableFields.map((f) => `        ${f.name}: ${nameVar}.${f.name} ?? ${this.defaultValue(f)},`).join('\n')}
+${editableFields.map((f) => `        ${f.name}: ${nameVar}.${f.name} ?? ${getDefaultValue(f)},`).join('\n')}
       });
     }
   }, [${nameVar}]);
@@ -136,7 +137,7 @@ ${formFields}
    * String(200) gibi parametre varsa maxLength attribute'u eklenir.
    */
   private generateFormField(field: FieldDeclaration): string {
-    const label = fieldLabel(field.name);
+    const label = toLabel(field.name);
     const required = field.constraints?.required;
     const reqMark = required ? ' *' : '';
     const reqAttr = required ? ' required' : '';
@@ -172,7 +173,7 @@ ${options}
           </div>`;
     }
 
-    const inputType = this.inputType(field.dataType.name);
+    const inputType = mapToInputType(field.dataType);
     const maxLen = field.dataType.params?.[0] ? ` maxLength={${field.dataType.params[0]}}` : '';
 
     return `          <div>
@@ -183,33 +184,4 @@ ${options}
           </div>`;
   }
 
-  /**
-   * FSL veri tipini HTML input type attribute değerine dönüştürür.
-   * Tarayıcı yerleşik doğrulama ve özel klavye desteği sağlar
-   * (örn: email → email klavyesi, tel → telefon klavyesi).
-   */
-  private inputType(dt: string): string {
-    const map: Record<string, string> = {
-      Email: 'email', Phone: 'tel', URL: 'url',
-      Number: 'number', Decimal: 'number', Money: 'number',
-      Date: 'date', DateTime: 'datetime-local',
-    };
-    return map[dt] || 'text';
-  }
-
-  /**
-   * Alan için form state varsayılan değerini döndürür.
-   * Constraint'te default varsa onu, yoksa tipe göre mantıklı bir değer kullanır.
-   * Sayısal → 0, Boolean → false, Diğer → '' (boş string)
-   */
-  private defaultValue(field: FieldDeclaration): string {
-    if (field.constraints?.default !== undefined) {
-      const d = field.constraints.default;
-      if (typeof d === 'string') return `'${d}'`;
-      return String(d);
-    }
-    if (field.dataType.name === 'Number' || field.dataType.name === 'Decimal' || field.dataType.name === 'Money') return '0';
-    if (field.dataType.name === 'Boolean') return 'false';
-    return "''";
-  }
 }

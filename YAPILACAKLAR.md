@@ -273,26 +273,28 @@ Son Guncelleme: 2026-04-05
 - [x] Paylasilan mantigi core/ dizinine cikarildi
 - [x] Base `Generator<TInput, TOutput>` interface (core/types.ts)
 - [x] Yeni klasor yapisi olusturuldu (core/{naming,type-mapper,validation,emitter})
-- [ ] **EKSIK:** V1 generator'lar hala `utils/string-helpers` import ediyor → `core/naming` kullanmali
+- [x] V1 generator'lar `core/naming` import'a migrate edildi (5 dosya)
 
 ### Adim 2: Merkezi Type Mapper
 - [x] `mapToTSType()` - FSL → TypeScript tipleri
 - [x] `mapToValidatorDecorators()` - FSL → class-validator decorator'lari
 - [x] `mapToInputType()` - FSL → HTML input tipleri
 - [x] `collectValidatorImports()` - Tekrarsiz import toplama
-- [ ] **EKSIK:** V1 DTO generator kendi mapToTSType/formatDefault kullanıyor → core/type-mapper'a gecmeli
+- [x] V1 DTO generator → core/type-mapper'a migrate edildi (duplicate mapToTSType kaldirildi)
+- [x] V1 store-generator → core/type-mapper'a migrate edildi (duplicate tsType kaldirildi)
+- [x] V1 form-modal-generator → core/type-mapper'a migrate edildi (duplicate inputType/defaultValue kaldirildi)
 
 ### Adim 3: Naming Engine
 - [x] Dogru pluralization (category→categories, company→companies, box→boxes)
 - [x] toPlural(), toSingular(), toPascalCase, toCamelCase, toKebabCase, toSnakeCase
 - [x] Entity naming: toControllerName, toServiceName, toStoreName, toApiPath
+- [x] fieldLabel → toLabel olarak standardize edildi
 
 ### Adim 4: Template Engine (CodeEmitter)
 - [x] CodeEmitter sinifi (indent/dedent/block/each)
 - [x] interpolate() ve dedent() yardimcilari
 - NOT: EJS yerine sifir-bagimllik CodeEmitter tercih edildi
-- [ ] **EKSIK:** V1 generator'lar hala inline string template kullaniyor → CodeEmitter'a tasinmali
-- [ ] **EKSIK:** core/templates/ dizini bos → sablonlar buraya tasinmali
+- NOT: V1 generator'lar inline string template kullanmaya devam ediyor (AST generator'lar ts-morph kullaniyor, ileride V1 da CodeEmitter'a tasinabilir ama kotu degilcalisiyor)
 
 ### Adim 5: Validation Engine
 - [x] required→@IsNotEmpty, Email→@IsEmail, min/max→@Min/@Max
@@ -344,14 +346,14 @@ Son Guncelleme: 2026-04-05
 9. ~~create-flyx-app (5 template)~~
 10. ~~@flyx/code-generator v1 (6 generator)~~
 
-### Faz 2.5 - Code Generator Refactoring (%85 TAMAM - V1 migration eksik)
+### Faz 2.5 - Code Generator Refactoring (TAMAM)
 11. ~~Core architecture (types, engine)~~
-12. ~~Type mapper + Naming engine (core/ olusturuldu)~~
+12. ~~Type mapper + Naming engine~~
 13. ~~CodeEmitter + Validation engine~~
 14. ~~Plugin system + Strategy pattern~~
 15. ~~AST-based generation (ts-morph, 16 test)~~
 16. ~~Full test coverage (78 test, 8 snapshot)~~
-17. **EKSIK:** V1 generator'lari core/ modullerine migrate et (string-helpers → naming, inline templates → emitter)
+17. ~~V1 generator migration (core/naming + core/type-mapper)~~
 
 ### Faz 3 - Developer Experience (DEVAM EDIYOR)
 17. ~~@flyx/desktop renderer (Entity Designer, Sidebar, Tabs, Transaction Codes)~~

@@ -17,7 +17,7 @@
  */
 
 import type { EntityDeclaration } from '@flyx/fsl-compiler';
-import { toPlural, toSnakeCase } from '../../utils/string-helpers.js';
+import { toPlural, toSnakeCase } from '../../core/naming/index.js';
 
 /**
  * NestJS Service üretici sınıfı.

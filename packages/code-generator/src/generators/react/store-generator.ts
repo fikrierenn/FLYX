@@ -25,8 +25,9 @@
  * - Middleware desteği (persist, devtools vb.)
  */
 
-import type { EntityDeclaration, FieldDeclaration } from '@flyx/fsl-compiler';
-import { toCamelCase, toPlural } from '../../utils/string-helpers.js';
+import type { EntityDeclaration } from '@flyx/fsl-compiler';
+import { toCamelCase, toPlural } from '../../core/naming/index.js';
+import { mapToTSType } from '../../core/type-mapper/index.js';
 
 /**
  * React/Zustand store üretici sınıfı.
@@ -47,7 +48,7 @@ export class ReactStoreGenerator {
 
     // Entity interface'i için alan tanımları (opsiyonellik dahil)
     const interfaceFields = entity.fields
-      .map((f) => `  ${f.name}${!f.constraints?.required ? '?' : ''}: ${this.tsType(f)};`)
+      .map((f) => `  ${f.name}${!f.constraints?.required ? '?' : ''}: ${mapToTSType(f.dataType)};`)
       .join('\n');
 
     return `import { create } from 'zustand';
@@ -126,21 +127,4 @@ export const use${name}Store = create<${name}Store>((set) => ({
 }));`;
   }
 
-  /**
-   * FSL veri tipini TypeScript tipine dönüştürür.
-   * Store interface'inde alan tipleri için kullanılır.
-   * Type-mapper modülünün basitleştirilmiş bir kopyasıdır.
-   */
-  private tsType(field: FieldDeclaration): string {
-    const map: Record<string, string> = {
-      String: 'string', Email: 'string', Phone: 'string', URL: 'string',
-      Text: 'string', Enum: 'string',
-      Number: 'number', Decimal: 'number', Money: 'number',
-      Boolean: 'boolean',
-      Date: 'string', DateTime: 'string',
-      JSON: 'Record<string, any>',
-      Relation: 'string',
-    };
-    return map[field.dataType.name] || 'any';
-  }
 }
