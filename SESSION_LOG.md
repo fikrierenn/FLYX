@@ -255,3 +255,43 @@ Sabah yapilacak: ABAP ve benzer ERP dilleri hakkinda derin arastirma.
 ### Hedef:
 FSL'i sadece "bir DSL" degil, ABAP/X++/AL seviyesinde guclu bir ERP dili yapmak.
 Handikaplari almadan, gucleri alarak.
+
+### Arastirma TAMAMLANDI:
+Detay: docs/ERP_LANGUAGE_RESEARCH.md (6 dil, karsilastirma matrisi, FSL icin 10 ozellik)
+
+---
+
+## MIMARI KARAR: FORM RENDER STRATEJISI
+
+**Soru:** Buyuk projelerde her seferinde FSL'den dinamik form render etmek performans sorunu olur mu?
+**Cevap:** Evet. ABAP'ta formlar (Dynpro) onceden derlenir, runtime'da sadece yuklenirler.
+
+### 3 Katmanli Strateji (ABAP + 1C hibrit):
+
+| Katman | Ne Zaman | Nasil | ABAP Karsiligi |
+|---|---|---|---|
+| **Build-time** | `flyx build` | FSL → React component dosyalari uretilir, diske yazilir | ABAP aktivasyon (SE51) |
+| **Cache** | API basladiginda | FSL derlenir, AST bellekte tutulur, tekrar derlenmez | ABAP LOAD tablosu |
+| **Dynamic** | Sadece gelistirme | Her istekte FSL okunur + derlenir | 1C managed forms |
+
+### Uygulama Plani:
+1. RuntimeService'de AST cache'i zaten var (entities Map'i)
+2. Eksik: `flyx build` ile React component dosyalari uretme (code-generator kullanarak)
+3. Eksik: Uretilmis dosyalari web app'e import etme
+4. Eksik: Hot-reload (dev modda FSL degisince ekran aninda guncellensin)
+
+### Performans Hedefleri:
+- Build-time: FSL derleme + kod uretme < 5 saniye (100 entity icin)
+- Runtime cache: Ilk yuklemede FSL derle, sonra bellekten oku
+- Sayfa acilisi: < 200ms (onceden uretilmis component)
+- Dev mode: FSL degisiklik → ekran guncelleme < 1 saniye
+
+---
+
+## SONRAKI SESSION YAPILACAKLAR
+
+1. FSL'e transaction blogu ekle (ABAP LUW)
+2. FSL'e entity inheritance ekle (X++ extends)
+3. Build-time form uretimi (`flyx build` → React components)
+4. SalesOrder ekranini tamamen FSL ile tanimla (TS kodu kaldir)
+5. Kalan ERP ekranlari (fatura, irsaliye, stok hareketi)
