@@ -322,6 +322,25 @@ export interface FormDeclaration extends ASTNode {
   sections: FormSection[];
   actions?: FormAction[];
   conditionalDisplay?: ConditionalDisplayRule[];
+  /** Master-detail form icin: detay entity adi (ornek: SalesOrderItem) */
+  detail_entity?: string;
+  /** Detay satirlarinda gosterilecek alanlar */
+  detail_fields?: string[];
+  /** Detay basligindaki etiketler */
+  detail_labels?: Record<string, string>;
+  /** Form tipi: 'standard' (tek kayit) veya 'master_detail' (baslik + satirlar) */
+  form_type?: 'standard' | 'master_detail';
+  /** Otomatik belge numaralama pattern'i (ornek: "SIP-{YYYY}-{SEQ:4}") */
+  numbering?: string;
+  /** Durum gecis kurallari */
+  status_flow?: StatusTransition[];
+}
+
+export interface StatusTransition {
+  from: string;
+  to: string;
+  label: string;
+  roles?: string[];
 }
 
 export interface ConditionalDisplayRule extends ASTNode {

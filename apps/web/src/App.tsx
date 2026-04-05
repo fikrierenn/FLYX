@@ -16,6 +16,7 @@ import { ReportsPage } from './pages/Reports/ReportsPage';
 import { UsersPage } from './pages/Users/UsersPage';
 import { PermissionsPage } from './pages/Permissions/PermissionsPage';
 import { DynamicEntityPage } from './pages/Data/DynamicEntityPage';
+import { SalesOrderPage } from './pages/SalesOrders/SalesOrderPage';
 
 function ProtectedLayout() {
   const { user, logout } = useAuthStore();
@@ -31,6 +32,7 @@ function ProtectedLayout() {
             <a href="/forms" className="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100">Forms</a>
             <a href="/workflows" className="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100">Workflows</a>
             <a href="/reports" className="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100">Reports</a>
+            <a href="/sales" className="px-3 py-2 rounded-md text-sm font-medium text-green-600 hover:text-green-800 hover:bg-green-50 font-semibold">Siparisler</a>
             <a href="/data" className="px-3 py-2 rounded-md text-sm font-medium text-blue-600 hover:text-blue-800 hover:bg-blue-50">Data</a>
             {user?.roles?.includes('admin') && (
               <>
@@ -56,6 +58,7 @@ function ProtectedLayout() {
           <Route path="/users" element={<UsersPage />} />
           <Route path="/permissions" element={<PermissionsPage />} />
           <Route path="/data" element={<DynamicEntityPage />} />
+          <Route path="/sales" element={<SalesOrderPage />} />
         </Routes>
       </main>
     </div>

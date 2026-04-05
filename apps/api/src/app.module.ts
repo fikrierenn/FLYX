@@ -23,6 +23,7 @@ import { EntitiesModule } from './modules/entities/entities.module';
 import { AuditModule } from './modules/audit/audit.module';
 import { RolesModule } from './modules/roles/roles.module';
 import { RuntimeModule } from './modules/runtime/runtime.module';
+import { SalesModule } from './modules/sales/sales.module';
 
 @Module({
   imports: [
@@ -51,6 +52,7 @@ import { RuntimeModule } from './modules/runtime/runtime.module';
     AuditModule,
     RolesModule,
     RuntimeModule,
+    SalesModule,
   ],
   providers: [
     // Global rate limit guard
