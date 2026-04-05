@@ -16,7 +16,8 @@ interface User {
   status: string;
 }
 
-const AVAILABLE_ROLES = ['admin', 'manager', 'user', 'sales_rep', 'sales_manager', 'finance_manager'];
+// Roller API'den cekilecek. Varsayilan sadece admin.
+const AVAILABLE_ROLES = ['admin'];
 
 export function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);

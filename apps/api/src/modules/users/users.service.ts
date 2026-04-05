@@ -69,7 +69,8 @@ export class UsersService {
       password_hash,
       first_name: data.first_name,
       last_name: data.last_name,
-      roles: data.roles || ['user'],
+      // Ilk kullanici otomatik admin olur, sonrakiler rolsuz baslar (admin atar)
+      roles: data.roles || (this.users.size === 0 ? ['admin'] : []),
       status: 'active',
       tenant_id: data.tenant_id,
       created_at: new Date(),

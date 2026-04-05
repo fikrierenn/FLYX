@@ -52,11 +52,10 @@ export class RolesService {
 
   /** Varsayilan rolleri olustur */
   private createSystemRoles(tenant_id: string) {
+    // Sadece admin varsayilan olarak gelir.
+    // Diger roller admin panelinden olusturulur.
     const systemRoles = [
       { name: 'admin', description: 'Tam yetki - tum islemleri yapabilir' },
-      { name: 'manager', description: 'Yonetici - okuma + yazma yetkileri' },
-      { name: 'user', description: 'Standart kullanici - sinirli yetkiler' },
-      { name: 'viewer', description: 'Salt okunur erisim' },
     ];
 
     for (const r of systemRoles) {
