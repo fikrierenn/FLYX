@@ -29,7 +29,7 @@ import {
   And, Or, Not,
   // Keywords - Triggers
   AfterCreate, AfterUpdate, AfterDelete,
-  BeforeCreate, BeforeUpdate, BeforeDelete, OnCreate,
+  BeforeCreate, BeforeUpdate, BeforeDelete, OnCreate, OnUpdate, OnDelete,
   // Data Types
   StringType, NumberType, DecimalType, BooleanType,
   DateType, DateTimeType, EmailType, PhoneType, URLType,
@@ -111,6 +111,7 @@ export class FSLParser extends CstParser {
       { ALT: () => this.SUBRULE(this.formDeclaration) },
       { ALT: () => this.SUBRULE(this.reportDeclaration) },
       { ALT: () => this.SUBRULE(this.workflowDeclaration) },
+      { ALT: () => this.SUBRULE(this.dashboardDeclaration) },
     ]);
   });
 
@@ -599,7 +600,11 @@ export class FSLParser extends CstParser {
   private workflowTrigger = this.RULE('workflowTrigger', () => {
     this.CONSUME(Identifier); // "trigger"
     this.CONSUME(Colon);
-    this.CONSUME(OnCreate);
+    this.OR2([
+      { ALT: () => this.CONSUME(OnCreate) },
+      { ALT: () => this.CONSUME(OnUpdate) },
+      { ALT: () => this.CONSUME(OnDelete) },
+    ]);
     this.CONSUME(LParen);
     this.CONSUME2(Identifier); // entity name
     this.CONSUME(RParen);
@@ -656,6 +661,21 @@ export class FSLParser extends CstParser {
         },
       },
     ]);
+  });
+
+  // ============================================================
+  // DASHBOARD (Gösterge Paneli) KURALLARI
+  // dashboard İsim { title: "...", ... }
+  // ============================================================
+
+  public dashboardDeclaration = this.RULE('dashboardDeclaration', () => {
+    this.CONSUME(Dashboard);
+    this.CONSUME(Identifier);
+    this.CONSUME(LCurly);
+    this.MANY(() => {
+      this.SUBRULE(this.formSectionProperty);
+    });
+    this.CONSUME(RCurly);
   });
 
   // ============================================================

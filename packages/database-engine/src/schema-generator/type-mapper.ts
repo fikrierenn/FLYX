@@ -98,6 +98,12 @@ export function mapFSLTypeToSQL(dataType: DataType): string {
     // Bu alanlar uygulama katmanında (runtime) hesaplanır
     case 'Computed':
       return ''; // Computed fields are not stored
+    // Lookup: Rapor parametrelerinde kullanilir, entity referansi (UUID)
+    case 'Lookup':
+      return 'UUID';
+    // DateRange: Rapor parametrelerinde tarih araligi, iki tarih sutunu olarak saklanir
+    case 'DateRange':
+      return 'DATERANGE';
     default:
       throw new Error(`Unknown FSL type: ${dataType.name}`);
   }

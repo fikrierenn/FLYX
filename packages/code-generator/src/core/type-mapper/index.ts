@@ -55,6 +55,9 @@ const TS_TYPE_MAP: Record<string, string> = {
   File: 'string',       // Dosya yolu veya URL
   Image: 'string',      // Görsel dosya yolu veya URL
   Array: 'any[]',
+  Lookup: 'string',     // Rapor parametresinde entity referansi (UUID)
+  DateRange: '{ start: string; end: string }', // Tarih araligi
+  Computed: 'any',      // Hesaplanmis alan (runtime)
 };
 
 /**
@@ -237,6 +240,8 @@ const INPUT_TYPE_MAP: Record<string, string> = {
   Relation: 'select',
   File: 'file',
   Image: 'file',
+  Lookup: 'select',
+  DateRange: 'date',
 };
 
 /**

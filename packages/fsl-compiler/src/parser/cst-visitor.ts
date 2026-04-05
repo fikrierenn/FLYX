@@ -150,6 +150,7 @@ export class CSTToASTVisitor extends BaseCstVisitor {
     if (ctx.formDeclaration) return this.visit(ctx.formDeclaration[0]);
     if (ctx.reportDeclaration) return this.visit(ctx.reportDeclaration[0]);
     if (ctx.workflowDeclaration) return this.visit(ctx.workflowDeclaration[0]);
+    if (ctx.dashboardDeclaration) return this.visit(ctx.dashboardDeclaration[0]);
     throw new Error('Unknown declaration type');
   }
 
@@ -446,7 +447,7 @@ export class CSTToASTVisitor extends BaseCstVisitor {
 
   validationBlock(ctx: any): { _blockType: string; validation: ValidationBlock } {
     const rules: ValidationRule[] = [];
-    const validation: ValidationBlock = { type: 'ValidationBlock', rules };
+    const validation: ValidationBlock & { onCreate?: any[]; onUpdate?: any[] } = { type: 'ValidationBlock', rules };
 
     if (ctx.validationEntry) {
       for (const entry of ctx.validationEntry) {
@@ -454,6 +455,8 @@ export class CSTToASTVisitor extends BaseCstVisitor {
         if (result.isRule) {
           rules.push(result.rule);
         }
+        if (result.onCreate) validation.onCreate = result.onCreate;
+        if (result.onUpdate) validation.onUpdate = result.onUpdate;
       }
     }
 
@@ -472,6 +475,17 @@ export class CSTToASTVisitor extends BaseCstVisitor {
         if (key === 'message') rule.message = value;
       }
     }
+
+    // İfade bloklarını çıkar (on_create, on_update gibi yaşam döngüsü kancaları)
+    const statements: any[] = [];
+    if (ctx.statement) {
+      for (const s of ctx.statement) {
+        statements.push(this.visit(s));
+      }
+    }
+    // on_create veya on_update bloğu ise kural değil, yaşam döngüsü kancası olarak döndür
+    if (name === 'on_create') return { isRule: false, onCreate: statements };
+    if (name === 'on_update') return { isRule: false, onUpdate: statements };
 
     return { isRule: true, rule };
   }
@@ -752,9 +766,13 @@ export class CSTToASTVisitor extends BaseCstVisitor {
   }
 
   workflowTrigger(ctx: any): any {
+    let event = 'on_create';
+    if (ctx.OnUpdate) event = 'on_update';
+    if (ctx.OnDelete) event = 'on_delete';
+
     const trigger: WorkflowTrigger = {
       type: 'WorkflowTrigger',
-      event: 'on_create',
+      event,
       entity: this.extractImage(ctx.Identifier[1]),
     };
     return { _type: 'trigger', trigger };
@@ -825,6 +843,27 @@ export class CSTToASTVisitor extends BaseCstVisitor {
     // Property (Identifier : expression)
     const value = this.visit(ctx.expression[0]);
     return { _entryType: 'property', key: name, value };
+  }
+
+  // ============================================================
+  // DASHBOARD DÖNÜŞÜMÜ
+  // ============================================================
+
+  dashboardDeclaration(ctx: any): any {
+    const name = this.extractImage(ctx.Identifier[0]);
+    const dashboard: any = {
+      type: 'DashboardDeclaration',
+      name,
+      title: name,
+      widgets: [],
+    };
+    if (ctx.formSectionProperty) {
+      for (const prop of ctx.formSectionProperty) {
+        const { key, value } = this.visit(prop);
+        if (key === 'title') dashboard.title = value;
+      }
+    }
+    return dashboard;
   }
 
   // ============================================================

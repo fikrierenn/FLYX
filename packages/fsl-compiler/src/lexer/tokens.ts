@@ -113,6 +113,8 @@ export const BeforeCreate = createToken({ name: 'BeforeCreate', pattern: /before
 export const BeforeUpdate = createToken({ name: 'BeforeUpdate', pattern: /before_update/, longer_alt: Identifier });
 export const BeforeDelete = createToken({ name: 'BeforeDelete', pattern: /before_delete/, longer_alt: Identifier });
 export const OnCreate = createToken({ name: 'OnCreate', pattern: /on_create/, longer_alt: Identifier });
+export const OnUpdate = createToken({ name: 'OnUpdate', pattern: /on_update/, longer_alt: Identifier });
+export const OnDelete = createToken({ name: 'OnDelete', pattern: /on_delete/, longer_alt: Identifier });
 
 // ============================================================
 // VERİ TİPLERİ
@@ -247,6 +249,8 @@ export const allTokens = [
   BeforeUpdate,
   BeforeDelete,
   OnCreate,
+  OnUpdate,
+  OnDelete,
 
   // Veri tipleri (PascalCase - Identifier'dan önce gelmeliler)
   DateTimeType,

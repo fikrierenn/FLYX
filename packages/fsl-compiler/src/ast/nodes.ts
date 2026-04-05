@@ -321,6 +321,15 @@ export interface FormDeclaration extends ASTNode {
   layout?: string;
   sections: FormSection[];
   actions?: FormAction[];
+  conditionalDisplay?: ConditionalDisplayRule[];
+}
+
+export interface ConditionalDisplayRule extends ASTNode {
+  type: 'ConditionalDisplayRule';
+  name: string;
+  condition: string;
+  targets: string[];
+  action?: 'show' | 'hide' | 'disable';
 }
 
 export interface FormSection extends ASTNode {
