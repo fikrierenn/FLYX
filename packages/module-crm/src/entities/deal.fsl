@@ -1,0 +1,47 @@
+// Firsat (Deal)
+// Satis firsatlarini ve satis hunisi asamalarini tanimlar.
+// Her firsat bir firmaya bagli olup tutar, olasilik ve beklenen kapanma tarihi izlenir.
+
+entity Deal {
+  fields {
+    // Firsat basligi
+    title: String(200) { required }
+
+    // Bagli firma
+    company: Relation(Company) { required }
+
+    // Ilgili kisi
+    contact: Relation(Contact)
+
+    // Firsat tutari
+    amount: Decimal(15,2) { default: 0 }
+
+    // Para birimi - ISO 4217 kodu
+    currency: String(3) { default: "TRY" }
+
+    // Satis hunisi asamasi
+    stage: Enum {
+      values: ["lead", "qualified", "proposal", "negotiation", "won", "lost"],
+      default: "lead"
+    }
+
+    // Kazanma olasiligi (%) - 0 ile 100 arasi
+    probability: Number { default: 0, min: 0, max: 100 }
+
+    // Beklenen kapanma tarihi
+    expected_close_date: Date
+
+    // Atanan satis temsilcisi
+    assigned_to: String(100)
+
+    // Aciklama / notlar
+    notes: Text
+  }
+
+  permissions {
+    create: ["admin", "crm_manager", "crm_user", "sales_user"]
+    read: ["admin", "crm_manager", "crm_user", "sales_user", "manager"]
+    update: ["admin", "crm_manager", "crm_user", "sales_user"]
+    delete: ["admin", "crm_manager"]
+  }
+}

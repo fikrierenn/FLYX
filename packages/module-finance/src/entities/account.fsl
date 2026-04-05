@@ -1,0 +1,38 @@
+// Hesap Plani (Chart of Accounts)
+// Muhasebe hesap planindaki hesaplari tanimlar. Agac yapisinda ust-alt hesap iliskisi destekler.
+// Turkiye Tekduzen Hesap Plani (TDHP) uyumlu yapida tasarlanmistir.
+
+entity Account {
+  fields {
+    // Hesap kodu - TDHP formatinda (orn: "100", "100.01", "600.01.001")
+    code: String(20) { required, unique, indexed }
+
+    // Hesap adi
+    name: String(200) { required }
+
+    // Hesap tipi - muhasebe denklemindeki siniflandirma
+    account_type: Enum {
+      values: ["asset", "liability", "equity", "revenue", "expense"],
+      default: "asset"
+    }
+
+    // Ust hesap - agac yapisinda hiyerarsik iliskiyi saglar
+    parent_account: Relation(Account)
+
+    // Hesabin para birimi
+    currency: String(3) { default: "TRY" }
+
+    // Hesap aktif mi? Kapali hesaplara kayit yapilamaz
+    is_active: Boolean { default: true }
+
+    // Guncel bakiye - muhasebe fislerinden hesaplanir
+    balance: Decimal(15,2) { default: 0 }
+  }
+
+  permissions {
+    create: ["admin"]
+    read: ["admin", "manager", "user"]
+    update: ["admin"]
+    delete: ["admin"]
+  }
+}

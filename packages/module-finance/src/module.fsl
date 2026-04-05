@@ -1,0 +1,7 @@
+// FLYX Finans Modulu
+// Muhasebe, hesap plani, muhasebe fisleri, mali donemler, doviz ve vergi yonetimi
+
+module "FLYX:Finance" {
+  version: "1.0.0"
+  dependencies: ["FLYX:Platform"]
+}

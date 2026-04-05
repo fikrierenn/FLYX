@@ -1,0 +1,7 @@
+// FLYX Insan Kaynaklari Modulu (HR)
+// Departman, pozisyon, calisan, izin ve puantaj yonetimi
+
+module "FLYX:HR" {
+  version: "1.0.0"
+  dependencies: ["FLYX:Platform"]
+}

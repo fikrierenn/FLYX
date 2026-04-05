@@ -1,0 +1,38 @@
+// Satis Siparisi Formu
+// Siparis olusturma ve duzenleme icin iki sutunlu form tasarimi.
+// Siparis satirlari ayri bir alt tablo olarak gosterilir.
+
+form SalesOrderForm {
+  entity: SalesOrder
+  layout: "two_column"
+
+  sections {
+    header {
+      label: "Siparis Bilgileri"
+      fields: ["order_no", "customer", "order_date", "delivery_date"]
+    }
+    financial {
+      label: "Tutar Bilgileri"
+      fields: ["subtotal", "tax_amount", "total", "currency"]
+    }
+    status_info {
+      label: "Durum ve Notlar"
+      fields: ["status", "notes"]
+    }
+  }
+
+  actions {
+    save {
+      label: "Kaydet"
+      style: "primary"
+    }
+    confirm {
+      label: "Onayla"
+      style: "success"
+    }
+    cancel {
+      label: "Iptal"
+      style: "secondary"
+    }
+  }
+}

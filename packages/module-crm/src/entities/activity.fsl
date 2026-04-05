@@ -1,0 +1,41 @@
+// Aktivite (Activity)
+// Musteri iliskileri kapsaminda gerceklestirilen aktiviteleri tanimlar.
+// Arama, toplanti, e-posta, gorev ve not turleri desteklenir.
+
+entity Activity {
+  fields {
+    // Aktivite basligi
+    title: String(200) { required }
+
+    // Aktivite turu
+    activity_type: Enum {
+      values: ["call", "meeting", "email", "task", "note"],
+      required: true
+    }
+
+    // Ilgili kisi
+    contact: Relation(Contact)
+
+    // Ilgili firma
+    company: Relation(Company)
+
+    // Ilgili firsat
+    deal: Relation(Deal)
+
+    // Vade / planlanan tarih ve saat
+    due_date: DateTime
+
+    // Tamamlandi mi?
+    completed: Boolean { default: false }
+
+    // Detayli aciklama
+    description: Text
+  }
+
+  permissions {
+    create: ["admin", "crm_manager", "crm_user", "sales_user"]
+    read: ["admin", "crm_manager", "crm_user", "sales_user", "manager"]
+    update: ["admin", "crm_manager", "crm_user", "sales_user"]
+    delete: ["admin", "crm_manager"]
+  }
+}

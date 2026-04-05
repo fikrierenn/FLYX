@@ -1,0 +1,27 @@
+// Depo Formu
+// Depo kayit ve duzenleme islemleri icin kullanici arayuzu
+
+form WarehouseForm {
+  entity: Warehouse
+  layout: "single_column"
+  sections {
+    general {
+      label: "Genel Bilgiler"
+      fields: ["code", "name", "warehouse_type", "is_active"]
+    }
+    address {
+      label: "Adres Bilgileri"
+      fields: ["address", "city"]
+    }
+  }
+  actions {
+    save {
+      label: "Kaydet"
+      style: "primary"
+    }
+    cancel {
+      label: "Iptal"
+      style: "secondary"
+    }
+  }
+}

@@ -1,0 +1,29 @@
+// Departman (Department)
+// Sirket organizasyon yapisindaki departmanlari tanimlar.
+// Agac yapisinda ust-alt departman iliskisi destekler.
+
+entity Department {
+  fields {
+    // Departman kodu - benzersiz tanimlayici
+    code: String(20) { required, unique }
+
+    // Departman adi
+    name: String(200) { required }
+
+    // Ust departman - hiyerarsik yapi icin
+    parent_department: Relation(Department)
+
+    // Departman yoneticisi
+    manager: Relation(Employee)
+
+    // Departman aktif mi?
+    is_active: Boolean { default: true }
+  }
+
+  permissions {
+    create: ["admin", "hr_manager"]
+    read: ["admin", "hr_manager", "hr_user", "manager"]
+    update: ["admin", "hr_manager"]
+    delete: ["admin"]
+  }
+}

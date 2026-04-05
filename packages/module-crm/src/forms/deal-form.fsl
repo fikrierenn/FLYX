@@ -1,0 +1,43 @@
+// Firsat Formu
+// Satis firsati olusturma ve takip islemleri icin kullanici arayuzu
+
+form DealForm {
+  entity: Deal
+  layout: "two_column"
+  sections {
+    general {
+      label: "Firsat Bilgileri"
+      fields: ["title", "company", "contact", "assigned_to"]
+    }
+    financial {
+      label: "Mali Bilgiler"
+      fields: ["amount", "currency", "probability"]
+    }
+    pipeline {
+      label: "Satis Hunisi"
+      fields: ["stage", "expected_close_date"]
+    }
+    details {
+      label: "Detaylar"
+      fields: ["notes"]
+    }
+  }
+  actions {
+    save {
+      label: "Kaydet"
+      style: "primary"
+    }
+    won {
+      label: "Kazanildi"
+      style: "success"
+    }
+    lost {
+      label: "Kaybedildi"
+      style: "danger"
+    }
+    cancel {
+      label: "Iptal"
+      style: "secondary"
+    }
+  }
+}

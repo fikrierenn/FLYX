@@ -1,0 +1,41 @@
+// Toplama Emri (Picking Order)
+// Satis siparislerine istinaden depodan urun toplama islemlerini tanimlar.
+// Oncelik seviyesi ve atanan calisan bilgisini icerir.
+
+entity PickingOrder {
+  fields {
+    // Toplama emri numarasi
+    order_no: String(20) { required, unique, indexed }
+
+    // Toplama yapilacak depo
+    warehouse: Relation(Warehouse) { required }
+
+    // Bagli satis siparisi
+    sales_order: Relation(SalesOrder)
+
+    // Toplama durumu
+    status: Enum {
+      values: ["pending", "in_progress", "completed", "cancelled"],
+      default: "pending"
+    }
+
+    // Atanan calisan
+    assigned_to: Relation(Employee)
+
+    // Oncelik seviyesi
+    priority: Enum {
+      values: ["low", "normal", "high", "urgent"],
+      default: "normal"
+    }
+
+    // Olusturma tarihi
+    created_date: Date { required }
+  }
+
+  permissions {
+    create: ["admin", "warehouse_manager", "warehouse_user"]
+    read: ["admin", "warehouse_manager", "warehouse_user", "manager"]
+    update: ["admin", "warehouse_manager", "warehouse_user"]
+    delete: ["admin", "warehouse_manager"]
+  }
+}

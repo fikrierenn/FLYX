@@ -1,0 +1,7 @@
+// FLYX Satis Modulu
+// Musteri yonetimi, satis siparisleri, fiyat listeleri ve satis surecleri
+
+module "FLYX:Sales" {
+  version: "1.0.0"
+  dependencies: ["FLYX:Platform", "FLYX:Inventory"]
+}

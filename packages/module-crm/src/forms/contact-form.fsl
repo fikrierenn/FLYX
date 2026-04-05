@@ -1,0 +1,35 @@
+// Ilgili Kisi Formu
+// Kisi kayit ve duzenleme islemleri icin kullanici arayuzu
+
+form ContactForm {
+  entity: Contact
+  layout: "two_column"
+  sections {
+    personal {
+      label: "Kisisel Bilgiler"
+      fields: ["first_name", "last_name", "title", "department"]
+    }
+    contact {
+      label: "Iletisim Bilgileri"
+      fields: ["email", "phone", "mobile"]
+    }
+    relation {
+      label: "Firma Bilgileri"
+      fields: ["company", "source"]
+    }
+    details {
+      label: "Detaylar"
+      fields: ["notes"]
+    }
+  }
+  actions {
+    save {
+      label: "Kaydet"
+      style: "primary"
+    }
+    cancel {
+      label: "Iptal"
+      style: "secondary"
+    }
+  }
+}

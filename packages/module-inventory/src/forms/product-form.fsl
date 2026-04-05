@@ -1,0 +1,37 @@
+// Urun Formu
+// Urun tanimlama ve duzenleme icin iki sutunlu form tasarimi.
+
+form ProductForm {
+  entity: Product
+  layout: "two_column"
+
+  sections {
+    general {
+      label: "Genel Bilgiler"
+      fields: ["code", "name", "description", "category", "product_type"]
+    }
+    specifications {
+      label: "Teknik Ozellikler"
+      fields: ["unit", "barcode", "weight", "volume"]
+    }
+    stock_settings {
+      label: "Stok Ayarlari"
+      fields: ["min_stock", "max_stock", "reorder_point"]
+    }
+    pricing {
+      label: "Fiyatlandirma"
+      fields: ["unit_cost", "sale_price", "tax_rate", "is_active"]
+    }
+  }
+
+  actions {
+    save {
+      label: "Kaydet"
+      style: "primary"
+    }
+    cancel {
+      label: "Iptal"
+      style: "secondary"
+    }
+  }
+}

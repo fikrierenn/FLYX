@@ -1,0 +1,7 @@
+// FLYX Satin Alma Modulu (Procurement)
+// Tedarikci yonetimi, satin alma siparisleri, mal kabul islemleri
+
+module "FLYX:Procurement" {
+  version: "1.0.0"
+  dependencies: ["FLYX:Platform"]
+}

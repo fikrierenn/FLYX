@@ -1,0 +1,7 @@
+// FLYX Stok / Envanter Modulu
+// Urun tanimlari, depo yonetimi, stok seviyeleri, stok hareketleri ve sayim islemleri
+
+module "FLYX:Inventory" {
+  version: "1.0.0"
+  dependencies: ["FLYX:Platform"]
+}

@@ -1,0 +1,48 @@
+// Satin Alma Siparisi (Purchase Order)
+// Tedarikcilere verilen satin alma siparislerini tanimlar.
+// Siparis kalemleri PurchaseOrderItem entity'sinde tutulur.
+// Onayli siparisler mal kabul sureci ile takip edilir.
+
+entity PurchaseOrder {
+  fields {
+    // Siparis numarasi - otomatik veya manuel atanir
+    order_no: String(20) { required, unique, indexed }
+
+    // Tedarikci - hangi firmaya siparis verildi
+    supplier: Relation(Supplier) { required }
+
+    // Siparis tarihi
+    order_date: Date { required }
+
+    // Beklenen teslim tarihi
+    expected_date: Date
+
+    // Ara toplam (KDV haric)
+    subtotal: Decimal(15,2) { default: 0 }
+
+    // Toplam vergi tutari
+    tax_amount: Decimal(15,2) { default: 0 }
+
+    // Genel toplam (KDV dahil)
+    total: Decimal(15,2) { default: 0 }
+
+    // Para birimi - ISO 4217 kodu
+    currency: String(3) { default: "TRY" }
+
+    // Siparis durumu - is akisi asamalari
+    status: Enum {
+      values: ["draft", "approved", "ordered", "received", "cancelled"],
+      default: "draft"
+    }
+
+    // Aciklama / notlar
+    notes: Text
+  }
+
+  permissions {
+    create: ["admin", "procurement_manager", "procurement_user"]
+    read: ["admin", "procurement_manager", "procurement_user", "manager"]
+    update: ["admin", "procurement_manager", "procurement_user"]
+    delete: ["admin", "procurement_manager"]
+  }
+}

@@ -1,0 +1,32 @@
+// Satin Alma Siparis Kalemi (Purchase Order Item)
+// Bir satin alma siparisinin detay satirlarini tanimlar.
+// Her kalem bir urun, miktar, birim fiyat ve vergi orani icerir.
+
+entity PurchaseOrderItem {
+  fields {
+    // Bagli oldugu satin alma siparisi
+    purchase_order: Relation(PurchaseOrder) { required }
+
+    // Siparis edilen urun
+    product: Relation(Product) { required }
+
+    // Miktar - ondalikli (kg, litre vb. icin)
+    quantity: Decimal(10,3) { required, min: 0 }
+
+    // Birim fiyat (KDV haric)
+    unit_price: Decimal(15,2) { required, min: 0 }
+
+    // KDV orani (%) - varsayilan %18
+    tax_rate: Decimal(5,2) { default: 18 }
+
+    // Satir toplami (miktar x birim fiyat)
+    line_total: Decimal(15,2) { default: 0 }
+  }
+
+  permissions {
+    create: ["admin", "procurement_manager", "procurement_user"]
+    read: ["admin", "procurement_manager", "procurement_user", "manager"]
+    update: ["admin", "procurement_manager", "procurement_user"]
+    delete: ["admin", "procurement_manager"]
+  }
+}

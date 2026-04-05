@@ -1,0 +1,31 @@
+// Tedarikci Formu
+// Tedarikci kayit ve duzenleme islemleri icin kullanici arayuzu
+
+form SupplierForm {
+  entity: Supplier
+  layout: "two_column"
+  sections {
+    general {
+      label: "Genel Bilgiler"
+      fields: ["code", "name", "tax_id", "status", "rating"]
+    }
+    contact {
+      label: "Iletisim Bilgileri"
+      fields: ["email", "phone", "address", "city", "country"]
+    }
+    financial {
+      label: "Mali Bilgiler"
+      fields: ["payment_term_days"]
+    }
+  }
+  actions {
+    save {
+      label: "Kaydet"
+      style: "primary"
+    }
+    cancel {
+      label: "Iptal"
+      style: "secondary"
+    }
+  }
+}

@@ -1,0 +1,32 @@
+// Vergi Orani (Tax Rate)
+// Sistemde kullanilan vergi oranlarini tanimlar.
+// KDV, stopaj, OTV gibi farkli vergi turlerini destekler.
+
+entity TaxRate {
+  fields {
+    // Vergi kodu (orn: "KDV18", "KDV8", "STOPAJ20")
+    code: String(20) { required, unique }
+
+    // Vergi adi (orn: "KDV %18", "Stopaj %20")
+    name: String(100) { required }
+
+    // Vergi orani (yuzde olarak, orn: 18.00)
+    rate: Decimal(5,2) { required }
+
+    // Vergi turu
+    tax_type: Enum {
+      values: ["vat", "withholding", "special"],
+      default: "vat"
+    }
+
+    // Aktif mi? Pasif vergiler yeni islemlerde kullanilamaz
+    is_active: Boolean { default: true }
+  }
+
+  permissions {
+    create: ["admin"]
+    read: ["admin", "manager", "user"]
+    update: ["admin"]
+    delete: ["admin"]
+  }
+}

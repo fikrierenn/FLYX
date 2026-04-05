@@ -1,0 +1,7 @@
+// FLYX Musteri Iliskileri Yonetimi Modulu (CRM)
+// Firma, ilgili kisi, firsat, aktivite ve kampanya yonetimi
+
+module "FLYX:CRM" {
+  version: "1.0.0"
+  dependencies: ["FLYX:Platform"]
+}

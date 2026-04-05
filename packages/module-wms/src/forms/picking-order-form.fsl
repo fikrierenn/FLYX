@@ -1,0 +1,35 @@
+// Toplama Emri Formu
+// Toplama emri olusturma ve takip islemleri icin kullanici arayuzu
+
+form PickingOrderForm {
+  entity: PickingOrder
+  layout: "two_column"
+  sections {
+    header {
+      label: "Emir Bilgileri"
+      fields: ["order_no", "warehouse", "sales_order", "created_date"]
+    }
+    assignment {
+      label: "Atama ve Oncelik"
+      fields: ["assigned_to", "priority", "status"]
+    }
+  }
+  actions {
+    save {
+      label: "Kaydet"
+      style: "primary"
+    }
+    start {
+      label: "Toplamaya Basla"
+      style: "success"
+    }
+    complete {
+      label: "Tamamla"
+      style: "success"
+    }
+    cancel {
+      label: "Iptal"
+      style: "secondary"
+    }
+  }
+}

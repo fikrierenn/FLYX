@@ -1,0 +1,29 @@
+// Stok Seviyesi (Stock Level)
+// Her urunun her depodaki guncel stok miktarini tutar.
+// Fiziksel miktar, rezerve miktar ve kullanilabilir miktar ayri takip edilir.
+
+entity StockLevel {
+  fields {
+    // Urun
+    product: Relation(Product) { required }
+
+    // Depo
+    warehouse: Relation(Warehouse) { required }
+
+    // Fiziksel miktar (depoda bulunan toplam)
+    quantity: Decimal(10,3) { default: 0 }
+
+    // Rezerve miktar (siparisler icin ayrilmis)
+    reserved_quantity: Decimal(10,3) { default: 0 }
+
+    // Kullanilabilir miktar (fiziksel - rezerve)
+    available_quantity: Decimal(10,3) { default: 0 }
+  }
+
+  permissions {
+    create: ["admin", "manager"]
+    read: ["admin", "manager", "user"]
+    update: ["admin", "manager"]
+    delete: ["admin"]
+  }
+}

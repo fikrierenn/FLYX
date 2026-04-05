@@ -1,0 +1,41 @@
+// Sevkiyat (Shipment)
+// Depodan musteri veya baska lokasyonlara yapilan sevkiyatlari tanimlar.
+// Kargo firmalari, takip numarasi ve teslimat durumu izlenir.
+
+entity Shipment {
+  fields {
+    // Sevkiyat numarasi
+    shipment_no: String(20) { required, unique, indexed }
+
+    // Sevk edilen depo
+    warehouse: Relation(Warehouse) { required }
+
+    // Tasiyici / kargo firmasi
+    carrier: String(200)
+
+    // Kargo takip numarasi
+    tracking_no: String(100)
+
+    // Sevk tarihi
+    ship_date: Date { required }
+
+    // Tahmini teslimat tarihi
+    delivery_date: Date
+
+    // Sevkiyat durumu
+    status: Enum {
+      values: ["preparing", "shipped", "in_transit", "delivered", "returned"],
+      default: "preparing"
+    }
+
+    // Aciklama / notlar
+    notes: Text
+  }
+
+  permissions {
+    create: ["admin", "warehouse_manager", "warehouse_user"]
+    read: ["admin", "warehouse_manager", "warehouse_user", "manager", "sales_user"]
+    update: ["admin", "warehouse_manager", "warehouse_user"]
+    delete: ["admin", "warehouse_manager"]
+  }
+}

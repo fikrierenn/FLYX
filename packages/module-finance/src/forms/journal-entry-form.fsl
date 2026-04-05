@@ -1,0 +1,38 @@
+// Muhasebe Fisi Formu
+// Yevmiye maddesi olusturma ve duzenleme icin iki sutunlu form tasarimi.
+// Fis satirlari ayri bir alt tablo olarak gosterilir.
+
+form JournalEntryForm {
+  entity: JournalEntry
+  layout: "two_column"
+
+  sections {
+    header {
+      label: "Fis Bilgileri"
+      fields: ["entry_no", "entry_date", "description", "status"]
+    }
+    totals {
+      label: "Toplamlar"
+      fields: ["total_debit", "total_credit"]
+    }
+    approval {
+      label: "Onay Bilgileri"
+      fields: ["posted_by", "posted_at"]
+    }
+  }
+
+  actions {
+    save {
+      label: "Kaydet"
+      style: "primary"
+    }
+    post {
+      label: "Onayla"
+      style: "success"
+    }
+    cancel {
+      label: "Iptal"
+      style: "secondary"
+    }
+  }
+}

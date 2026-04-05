@@ -1,0 +1,31 @@
+// Firma Formu
+// Firma kayit ve duzenleme islemleri icin kullanici arayuzu
+
+form CompanyForm {
+  entity: Company
+  layout: "two_column"
+  sections {
+    general {
+      label: "Genel Bilgiler"
+      fields: ["name", "tax_id", "sector", "status"]
+    }
+    details {
+      label: "Firma Detaylari"
+      fields: ["employee_count", "annual_revenue", "website"]
+    }
+    contact {
+      label: "Iletisim Bilgileri"
+      fields: ["phone", "address", "city"]
+    }
+  }
+  actions {
+    save {
+      label: "Kaydet"
+      style: "primary"
+    }
+    cancel {
+      label: "Iptal"
+      style: "secondary"
+    }
+  }
+}

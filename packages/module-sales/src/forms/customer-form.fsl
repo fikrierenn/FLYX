@@ -1,0 +1,33 @@
+// Musteri Formu
+// Musteri kayit ve duzenleme icin iki sutunlu form tasarimi.
+
+form CustomerForm {
+  entity: Customer
+  layout: "two_column"
+
+  sections {
+    identity {
+      label: "Kimlik Bilgileri"
+      fields: ["code", "name", "tax_id", "category"]
+    }
+    contact {
+      label: "Iletisim Bilgileri"
+      fields: ["email", "phone", "address", "city", "country"]
+    }
+    financial {
+      label: "Mali Bilgiler"
+      fields: ["credit_limit", "payment_term_days", "status"]
+    }
+  }
+
+  actions {
+    save {
+      label: "Kaydet"
+      style: "primary"
+    }
+    cancel {
+      label: "Iptal"
+      style: "secondary"
+    }
+  }
+}

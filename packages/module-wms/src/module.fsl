@@ -1,0 +1,7 @@
+// FLYX Depo Yonetim Sistemi Modulu (WMS)
+// Depo, lokasyon, toplama emri ve sevkiyat yonetimi
+
+module "FLYX:WMS" {
+  version: "1.0.0"
+  dependencies: ["FLYX:Platform"]
+}

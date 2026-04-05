@@ -1,0 +1,53 @@
+// Tedarikci (Supplier)
+// Satin alma sureclerinde mal ve hizmet temin edilen tedarikci firmalari tanimlar.
+// Her tedarikci icin odeme vadesi, derecelendirme ve iletisim bilgileri tutulur.
+
+entity Supplier {
+  fields {
+    // Tedarikci kodu - benzersiz tanimlayici
+    code: String(50) { required, unique, indexed }
+
+    // Tedarikci adi / unvani
+    name: String(200) { required }
+
+    // Vergi kimlik numarasi
+    tax_id: String(20) { unique }
+
+    // E-posta adresi
+    email: Email
+
+    // Telefon numarasi
+    phone: Phone
+
+    // Acik adres
+    address: Text
+
+    // Sehir
+    city: String(100)
+
+    // Ulke - varsayilan Turkiye
+    country: String(100) { default: "Turkiye" }
+
+    // Odeme vadesi (gun) - varsayilan 30 gun
+    payment_term_days: Number { default: 30 }
+
+    // Tedarikci derecelendirmesi - A en iyi, D en dusuk
+    rating: Enum {
+      values: ["A", "B", "C", "D"],
+      default: "B"
+    }
+
+    // Tedarikci durumu
+    status: Enum {
+      values: ["active", "inactive"],
+      default: "active"
+    }
+  }
+
+  permissions {
+    create: ["admin", "procurement_manager"]
+    read: ["admin", "procurement_manager", "procurement_user", "manager"]
+    update: ["admin", "procurement_manager"]
+    delete: ["admin"]
+  }
+}

@@ -1,0 +1,53 @@
+// Musteri (Customer)
+// Satis yapilan firmalari ve bireyleri tanimlar.
+// Kredi limiti, odeme vadesi ve durum bilgilerini icerir.
+
+entity Customer {
+  fields {
+    // Musteri kodu - benzersiz tanimlayici
+    code: String(50) { required, unique, indexed }
+
+    // Musteri adi / unvani
+    name: String(200) { required }
+
+    // Vergi kimlik numarasi (TCKN veya VKN)
+    tax_id: String(20) { unique }
+
+    // E-posta adresi
+    email: Email
+
+    // Telefon numarasi
+    phone: Phone
+
+    // Acik adres
+    address: Text
+
+    // Sehir
+    city: String(100)
+
+    // Ulke
+    country: String(100) { default: "Turkiye" }
+
+    // Kredi limiti - bu tutari asan siparislerde uyari verilir
+    credit_limit: Decimal(15,2) { default: 0 }
+
+    // Odeme vadesi (gun cinsinden)
+    payment_term_days: Number { default: 30 }
+
+    // Musteri durumu
+    status: Enum {
+      values: ["active", "inactive", "blocked"],
+      default: "active"
+    }
+
+    // Musteri kategorisi (orn: "A Sinifi", "Bayi", "Toptan")
+    category: String(50)
+  }
+
+  permissions {
+    create: ["admin", "manager"]
+    read: ["admin", "manager", "user"]
+    update: ["admin", "manager"]
+    delete: ["admin"]
+  }
+}

@@ -1,0 +1,35 @@
+// Depo (Warehouse)
+// Fiziksel depo lokasyonlarini tanimlar.
+// Ana depo, transit depo ve iade deposu turleri desteklenir.
+
+entity Warehouse {
+  fields {
+    // Depo kodu - benzersiz tanimlayici
+    code: String(20) { required, unique, indexed }
+
+    // Depo adi
+    name: String(200) { required }
+
+    // Acik adres
+    address: Text
+
+    // Sehir
+    city: String(100)
+
+    // Depo aktif mi?
+    is_active: Boolean { default: true }
+
+    // Depo tipi - ana, transit veya iade deposu
+    warehouse_type: Enum {
+      values: ["main", "transit", "return"],
+      default: "main"
+    }
+  }
+
+  permissions {
+    create: ["admin", "warehouse_manager"]
+    read: ["admin", "warehouse_manager", "warehouse_user", "manager"]
+    update: ["admin", "warehouse_manager"]
+    delete: ["admin"]
+  }
+}

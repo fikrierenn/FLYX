@@ -1,0 +1,32 @@
+// Fiyat Listesi (Price List)
+// Urun fiyatlandirma politikalarini tanimlar.
+// Farkli musteriler veya kanallar icin farkli fiyat listeleri olusturulabilir.
+
+entity PriceList {
+  fields {
+    // Fiyat listesi kodu
+    code: String(20) { required, unique }
+
+    // Fiyat listesi adi (orn: "Bayi Fiyat Listesi", "Perakende 2024")
+    name: String(200) { required }
+
+    // Para birimi
+    currency: String(3) { default: "TRY" }
+
+    // Gecerlilik baslangic tarihi
+    valid_from: Date { required }
+
+    // Gecerlilik bitis tarihi (bos ise suresiz gecerli)
+    valid_to: Date
+
+    // Aktif mi?
+    is_active: Boolean { default: true }
+  }
+
+  permissions {
+    create: ["admin", "manager"]
+    read: ["admin", "manager", "user"]
+    update: ["admin", "manager"]
+    delete: ["admin"]
+  }
+}

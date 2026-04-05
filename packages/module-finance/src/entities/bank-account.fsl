@@ -1,0 +1,35 @@
+// Banka Hesabi (Bank Account)
+// Firmanin banka hesaplarini tanimlar. IBAN, sube ve bakiye bilgilerini icerir.
+// Her banka hesabi bir para birimine baglidir.
+
+entity BankAccount {
+  fields {
+    // Banka hesap numarasi
+    account_no: String(30) { required, unique }
+
+    // Banka adi (orn: "Garanti BBVA", "Is Bankasi")
+    bank_name: String(200) { required }
+
+    // Sube adi veya kodu
+    branch: String(100)
+
+    // IBAN numarasi (TR + 24 hane)
+    iban: String(34) { unique }
+
+    // Hesabin para birimi
+    currency: Relation(Currency) { required }
+
+    // Guncel bakiye
+    balance: Decimal(15,2) { default: 0 }
+
+    // Hesap aktif mi?
+    is_active: Boolean { default: true }
+  }
+
+  permissions {
+    create: ["admin"]
+    read: ["admin", "manager"]
+    update: ["admin"]
+    delete: ["admin"]
+  }
+}

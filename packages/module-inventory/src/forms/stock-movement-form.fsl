@@ -1,0 +1,33 @@
+// Stok Hareketi Formu
+// Stok giris, cikis ve transfer islemleri icin iki sutunlu form tasarimi.
+
+form StockMovementForm {
+  entity: StockMovement
+  layout: "two_column"
+
+  sections {
+    movement_info {
+      label: "Hareket Bilgileri"
+      fields: ["movement_no", "movement_type", "movement_date"]
+    }
+    product_info {
+      label: "Urun ve Depo"
+      fields: ["product", "warehouse", "quantity"]
+    }
+    reference {
+      label: "Referans Bilgileri"
+      fields: ["reference_type", "reference_no", "notes"]
+    }
+  }
+
+  actions {
+    save {
+      label: "Kaydet"
+      style: "primary"
+    }
+    cancel {
+      label: "Iptal"
+      style: "secondary"
+    }
+  }
+}

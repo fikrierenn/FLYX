@@ -1,0 +1,56 @@
+// Calisan (Employee)
+// Sirket calisanlarinin kisisel, organizasyonel ve mali bilgilerini tanimlar.
+// TC kimlik no ile Turkiye'ye ozgu entegrasyon saglanir.
+
+entity Employee {
+  fields {
+    // Sicil numarasi - benzersiz calisan tanimlayici
+    employee_no: String(20) { required, unique, indexed }
+
+    // Ad
+    first_name: String(100) { required }
+
+    // Soyad
+    last_name: String(100) { required }
+
+    // Kurumsal e-posta adresi
+    email: Email { required, unique }
+
+    // Telefon numarasi
+    phone: Phone
+
+    // TC Kimlik Numarasi - 11 haneli
+    tc_kimlik_no: String(11) { unique }
+
+    // Dogum tarihi
+    birth_date: Date
+
+    // Ise baslama tarihi
+    hire_date: Date { required }
+
+    // Calistigi departman
+    department: Relation(Department) { required }
+
+    // Pozisyonu
+    position: Relation(Position) { required }
+
+    // Bagli oldugu yonetici
+    manager: Relation(Employee)
+
+    // Brut maas
+    salary: Decimal(15,2)
+
+    // Calisan durumu
+    status: Enum {
+      values: ["active", "on_leave", "terminated"],
+      default: "active"
+    }
+  }
+
+  permissions {
+    create: ["admin", "hr_manager"]
+    read: ["admin", "hr_manager", "hr_user", "manager"]
+    update: ["admin", "hr_manager"]
+    delete: ["admin"]
+  }
+}

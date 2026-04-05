@@ -1,0 +1,38 @@
+// Lokasyon / Raf (Location)
+// Depo icerisindeki fiziksel depolama lokasyonlarini tanimlar.
+// Zon, koridor, raf ve raf katmani bilgilerini icerir.
+
+entity Location {
+  fields {
+    // Lokasyon kodu - orn: A-01-03-02 (zon-koridor-raf-kat)
+    code: String(30) { required, unique, indexed }
+
+    // Bagli depo
+    warehouse: Relation(Warehouse) { required }
+
+    // Zon / bolge kodu
+    zone: String(20)
+
+    // Koridor numarasi
+    aisle: String(10)
+
+    // Raf numarasi
+    rack: String(10)
+
+    // Raf katmani
+    shelf: String(10)
+
+    // Lokasyon kapasitesi (hacim veya agirlik birimi)
+    capacity: Decimal(10,2)
+
+    // Lokasyon aktif mi?
+    is_active: Boolean { default: true }
+  }
+
+  permissions {
+    create: ["admin", "warehouse_manager"]
+    read: ["admin", "warehouse_manager", "warehouse_user"]
+    update: ["admin", "warehouse_manager"]
+    delete: ["admin"]
+  }
+}

@@ -1,0 +1,40 @@
+// Izin Talep Formu
+// Calisan izin talep olusturma ve onay islemleri icin kullanici arayuzu
+
+form LeaveForm {
+  entity: Leave
+  layout: "single_column"
+  sections {
+    request {
+      label: "Izin Talebi"
+      fields: ["employee", "leave_type", "start_date", "end_date", "days"]
+    }
+    approval {
+      label: "Onay Bilgileri"
+      fields: ["status", "approved_by"]
+      permissions: ["admin", "hr_manager", "manager"]
+    }
+    details {
+      label: "Detaylar"
+      fields: ["notes"]
+    }
+  }
+  actions {
+    save {
+      label: "Kaydet"
+      style: "primary"
+    }
+    approve {
+      label: "Onayla"
+      style: "success"
+    }
+    reject {
+      label: "Reddet"
+      style: "danger"
+    }
+    cancel {
+      label: "Iptal"
+      style: "secondary"
+    }
+  }
+}

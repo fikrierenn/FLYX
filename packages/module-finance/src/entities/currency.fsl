@@ -1,0 +1,29 @@
+// Doviz / Para Birimi (Currency)
+// Sistemde kullanilan para birimlerini ve kur bilgilerini tanimlar.
+// Bir para birimi baz doviz olarak isaretlenebilir (genellikle TRY).
+
+entity Currency {
+  fields {
+    // ISO 4217 para birimi kodu (orn: "TRY", "USD", "EUR")
+    code: String(3) { required, unique }
+
+    // Para birimi adi (orn: "Turk Lirasi", "Amerikan Dolari")
+    name: String(100) { required }
+
+    // Sembol (orn: "₺", "$", "€")
+    symbol: String(5)
+
+    // Guncel kur (baz dovize gore)
+    exchange_rate: Decimal(10,6) { default: 1 }
+
+    // Baz doviz mi? Sistemde yalnizca bir baz doviz olabilir
+    is_base: Boolean { default: false }
+  }
+
+  permissions {
+    create: ["admin"]
+    read: ["admin", "manager", "user"]
+    update: ["admin"]
+    delete: ["admin"]
+  }
+}

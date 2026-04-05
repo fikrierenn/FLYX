@@ -1,0 +1,35 @@
+// Satis Siparisi Kalemi (Sales Order Item)
+// Siparisin her bir urun satirini temsil eder.
+// Miktar, birim fiyat, indirim ve KDV bilgilerini icerir.
+
+entity SalesOrderItem {
+  fields {
+    // Ait oldugu satis siparisi
+    sales_order: Relation(SalesOrder) { required }
+
+    // Siparis edilen urun
+    product: Relation(Product) { required }
+
+    // Miktar (ondalikli - kg, lt gibi birimler icin)
+    quantity: Decimal(10,3) { required, min: 0 }
+
+    // Birim fiyat (KDV haric)
+    unit_price: Decimal(15,2) { required, min: 0 }
+
+    // Indirim orani (yuzde olarak, orn: 10.00 = %10)
+    discount_rate: Decimal(5,2) { default: 0 }
+
+    // KDV orani (yuzde olarak)
+    tax_rate: Decimal(5,2) { default: 18 }
+
+    // Satir toplami (miktar * birim fiyat * (1 - indirim) * (1 + KDV))
+    line_total: Decimal(15,2) { default: 0 }
+  }
+
+  permissions {
+    create: ["admin", "manager", "user"]
+    read: ["admin", "manager", "user"]
+    update: ["admin", "manager"]
+    delete: ["admin", "manager"]
+  }
+}

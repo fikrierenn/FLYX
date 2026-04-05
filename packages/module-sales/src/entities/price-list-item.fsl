@@ -1,0 +1,26 @@
+// Fiyat Listesi Kalemi (Price List Item)
+// Fiyat listesindeki her bir urunun birim fiyatini tanimlar.
+// Minimum miktar tanimi ile kademelendirilmis fiyatlandirma destekler.
+
+entity PriceListItem {
+  fields {
+    // Ait oldugu fiyat listesi
+    price_list: Relation(PriceList) { required }
+
+    // Urun
+    product: Relation(Product) { required }
+
+    // Birim fiyat (KDV haric)
+    unit_price: Decimal(15,2) { required }
+
+    // Minimum siparis miktari (bu fiyatin gecerli oldugu en dusuk miktar)
+    min_quantity: Decimal(10,3) { default: 1 }
+  }
+
+  permissions {
+    create: ["admin", "manager"]
+    read: ["admin", "manager", "user"]
+    update: ["admin", "manager"]
+    delete: ["admin", "manager"]
+  }
+}

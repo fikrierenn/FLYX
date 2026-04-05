@@ -1,0 +1,32 @@
+// Stok Sayimi (Stock Count / Physical Inventory)
+// Depo bazinda fiziksel sayim islemlerini yonetir.
+// Planlama, sayim ve sonuclandirma asamalarini takip eder.
+
+entity StockCount {
+  fields {
+    // Sayim numarasi
+    count_no: String(20) { required, unique }
+
+    // Sayim yapilacak depo
+    warehouse: Relation(Warehouse) { required }
+
+    // Sayim tarihi
+    count_date: Date { required }
+
+    // Sayim durumu
+    status: Enum {
+      values: ["planned", "in_progress", "completed", "cancelled"],
+      default: "planned"
+    }
+
+    // Notlar ve aciklamalar
+    notes: Text
+  }
+
+  permissions {
+    create: ["admin", "manager"]
+    read: ["admin", "manager", "user"]
+    update: ["admin", "manager"]
+    delete: ["admin"]
+  }
+}

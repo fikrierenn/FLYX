@@ -1,0 +1,44 @@
+// Izin (Leave)
+// Calisan izin taleplerini ve onay sureclerini tanimlar.
+// Yillik izin, hastalik, dogum izni ve ucretsiz izin turleri desteklenir.
+
+entity Leave {
+  fields {
+    // Izin talep eden calisan
+    employee: Relation(Employee) { required }
+
+    // Izin turu
+    leave_type: Enum {
+      values: ["annual", "sick", "maternity", "unpaid"],
+      required: true
+    }
+
+    // Izin baslangic tarihi
+    start_date: Date { required }
+
+    // Izin bitis tarihi
+    end_date: Date { required }
+
+    // Izin gun sayisi
+    days: Number { required, min: 1 }
+
+    // Onay durumu
+    status: Enum {
+      values: ["pending", "approved", "rejected", "cancelled"],
+      default: "pending"
+    }
+
+    // Onaylayan yonetici
+    approved_by: Relation(Employee)
+
+    // Aciklama / notlar
+    notes: Text
+  }
+
+  permissions {
+    create: ["admin", "hr_manager", "hr_user", "employee"]
+    read: ["admin", "hr_manager", "hr_user", "manager"]
+    update: ["admin", "hr_manager", "manager"]
+    delete: ["admin", "hr_manager"]
+  }
+}

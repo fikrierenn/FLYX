@@ -1,0 +1,41 @@
+// Muhasebe Fisi (Journal Entry / Yevmiye Maddesi)
+// Cift tarafli kayit sistemine gore muhasebe fislerini tanimlar.
+// Her fis borclu ve alacakli satirlardan olusur ve toplam borc = toplam alacak olmalidir.
+
+entity JournalEntry {
+  fields {
+    // Fis numarasi - otomatik veya manuel atanir
+    entry_no: String(20) { required, unique, indexed }
+
+    // Fis tarihi - mali donem kontrolu yapilir
+    entry_date: Date { required }
+
+    // Fis aciklamasi - islem hakkinda detayli bilgi
+    description: Text { required }
+
+    // Toplam borc tutari - satirlardan hesaplanir
+    total_debit: Decimal(15,2) { default: 0 }
+
+    // Toplam alacak tutari - satirlardan hesaplanir
+    total_credit: Decimal(15,2) { default: 0 }
+
+    // Fis durumu - taslak olarak olusturulur, onaylaninca kaydedilir
+    status: Enum {
+      values: ["draft", "posted", "cancelled"],
+      default: "draft"
+    }
+
+    // Fisi onaylayan kullanici
+    posted_by: Relation(User)
+
+    // Onaylanma tarihi ve saati
+    posted_at: DateTime
+  }
+
+  permissions {
+    create: ["admin", "manager"]
+    read: ["admin", "manager", "user"]
+    update: ["admin", "manager"]
+    delete: ["admin"]
+  }
+}

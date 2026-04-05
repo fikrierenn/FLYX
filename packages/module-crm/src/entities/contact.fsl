@@ -1,0 +1,47 @@
+// Ilgili Kisi (Contact)
+// Firmalarla iliskili kisi kayitlarini tanimlar.
+// Potansiyel musteri ve mevcut musteri temsilcileri icin kullanilir.
+
+entity Contact {
+  fields {
+    // Ad
+    first_name: String(100) { required }
+
+    // Soyad
+    last_name: String(100) { required }
+
+    // E-posta adresi
+    email: Email { unique }
+
+    // Sabit telefon
+    phone: Phone
+
+    // Cep telefonu
+    mobile: Phone
+
+    // Bagli firma
+    company: Relation(Company)
+
+    // Unvan / gorev
+    title: String(100)
+
+    // Departman
+    department: String(100)
+
+    // Aciklama / notlar
+    notes: Text
+
+    // Kaynak - bu kisi hangi kanaldan geldi
+    source: Enum {
+      values: ["web", "referral", "cold_call", "exhibition", "other"],
+      default: "web"
+    }
+  }
+
+  permissions {
+    create: ["admin", "crm_manager", "crm_user", "sales_user"]
+    read: ["admin", "crm_manager", "crm_user", "sales_user", "manager"]
+    update: ["admin", "crm_manager", "crm_user"]
+    delete: ["admin", "crm_manager"]
+  }
+}

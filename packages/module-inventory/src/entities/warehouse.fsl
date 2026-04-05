@@ -1,0 +1,32 @@
+// Depo (Warehouse)
+// Stoklarin fiziksel olarak tutuldugu depolari tanimlar.
+// Birden fazla depo arasinda transfer ve stok takibi destekler.
+
+entity Warehouse {
+  fields {
+    // Depo kodu
+    code: String(20) { required, unique, indexed }
+
+    // Depo adi
+    name: String(200) { required }
+
+    // Depo adresi
+    address: Text
+
+    // Sehir
+    city: String(100)
+
+    // Sorumlu kisi
+    manager: Relation(User)
+
+    // Depo aktif mi?
+    is_active: Boolean { default: true }
+  }
+
+  permissions {
+    create: ["admin"]
+    read: ["admin", "manager", "user"]
+    update: ["admin"]
+    delete: ["admin"]
+  }
+}

@@ -1,0 +1,50 @@
+// Stok Hareketi (Stock Movement)
+// Depoya giris, cikis ve transfer islemlerini kaydeder.
+// Her hareket stok seviyesini otomatik gunceller.
+
+entity StockMovement {
+  fields {
+    // Hareket numarasi - benzersiz takip kodu
+    movement_no: String(20) { required, unique, indexed }
+
+    // Urun
+    product: Relation(Product) { required }
+
+    // Depo (giris/cikis yapilan depo)
+    warehouse: Relation(Warehouse) { required }
+
+    // Hareket tipi
+    movement_type: Enum {
+      values: ["in", "out", "transfer"],
+      default: "in"
+    }
+
+    // Miktar (her zaman pozitif deger)
+    quantity: Decimal(10,3) { required }
+
+    // Referans belge tipi (orn: "purchase_order", "sales_order", "production")
+    reference_type: String(50)
+
+    // Referans belge numarasi
+    reference_no: String(50)
+
+    // Hareket tarihi
+    movement_date: Date { required }
+
+    // Aciklama / notlar
+    notes: Text
+  }
+
+  permissions {
+    create: ["admin", "manager"]
+    read: ["admin", "manager", "user"]
+    update: ["admin"]
+    delete: ["admin"]
+  }
+
+  triggers {
+    after_create {
+      // Stok seviyesini guncelle (giris: arttir, cikis: azalt)
+    }
+  }
+}

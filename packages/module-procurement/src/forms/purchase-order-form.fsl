@@ -1,0 +1,35 @@
+// Satin Alma Siparisi Formu
+// Siparis olusturma ve duzenleme islemleri icin kullanici arayuzu
+
+form PurchaseOrderForm {
+  entity: PurchaseOrder
+  layout: "two_column"
+  sections {
+    header {
+      label: "Siparis Bilgileri"
+      fields: ["order_no", "supplier", "order_date", "expected_date", "status"]
+    }
+    financial {
+      label: "Tutar Bilgileri"
+      fields: ["subtotal", "tax_amount", "total", "currency"]
+    }
+    details {
+      label: "Detaylar"
+      fields: ["notes"]
+    }
+  }
+  actions {
+    save {
+      label: "Kaydet"
+      style: "primary"
+    }
+    approve {
+      label: "Onayla"
+      style: "success"
+    }
+    cancel {
+      label: "Iptal"
+      style: "secondary"
+    }
+  }
+}

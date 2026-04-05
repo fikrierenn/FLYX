@@ -1,0 +1,44 @@
+// Kampanya (Campaign)
+// Pazarlama kampanyalarini tanimlar ve performanslarini izler.
+// E-posta, SMS, sosyal medya ve etkinlik kampanya turleri desteklenir.
+
+entity Campaign {
+  fields {
+    // Kampanya adi
+    name: String(200) { required }
+
+    // Kampanya turu
+    campaign_type: Enum {
+      values: ["email", "sms", "social", "event"],
+      default: "email"
+    }
+
+    // Baslangic tarihi
+    start_date: Date { required }
+
+    // Bitis tarihi
+    end_date: Date
+
+    // Butce
+    budget: Decimal(15,2) { default: 0 }
+
+    // Kampanya durumu
+    status: Enum {
+      values: ["planned", "active", "paused", "completed"],
+      default: "planned"
+    }
+
+    // Hedef kisi sayisi
+    target_count: Number { default: 0 }
+
+    // Donus / yanit sayisi
+    response_count: Number { default: 0 }
+  }
+
+  permissions {
+    create: ["admin", "crm_manager", "marketing_manager"]
+    read: ["admin", "crm_manager", "crm_user", "marketing_manager", "manager"]
+    update: ["admin", "crm_manager", "marketing_manager"]
+    delete: ["admin", "crm_manager"]
+  }
+}

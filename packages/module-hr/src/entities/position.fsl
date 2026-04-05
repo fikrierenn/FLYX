@@ -1,0 +1,32 @@
+// Pozisyon (Position)
+// Sirket icerisindeki is pozisyonlarini tanimlar.
+// Her pozisyon bir departmana bagli olup seviye bilgisi icerir.
+
+entity Position {
+  fields {
+    // Pozisyon kodu
+    code: String(20) { required, unique }
+
+    // Pozisyon unvani
+    title: String(200) { required }
+
+    // Bagli departman
+    department: Relation(Department) { required }
+
+    // Pozisyon seviyesi
+    level: Enum {
+      values: ["junior", "mid", "senior", "lead", "manager", "director"],
+      default: "mid"
+    }
+
+    // Pozisyon aktif mi?
+    is_active: Boolean { default: true }
+  }
+
+  permissions {
+    create: ["admin", "hr_manager"]
+    read: ["admin", "hr_manager", "hr_user", "manager"]
+    update: ["admin", "hr_manager"]
+    delete: ["admin"]
+  }
+}

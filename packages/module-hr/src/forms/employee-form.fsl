@@ -1,0 +1,36 @@
+// Calisan Formu
+// Calisan kayit ve duzenleme islemleri icin kullanici arayuzu
+
+form EmployeeForm {
+  entity: Employee
+  layout: "two_column"
+  sections {
+    personal {
+      label: "Kisisel Bilgiler"
+      fields: ["employee_no", "first_name", "last_name", "tc_kimlik_no", "birth_date"]
+    }
+    contact {
+      label: "Iletisim Bilgileri"
+      fields: ["email", "phone"]
+    }
+    organization {
+      label: "Organizasyon Bilgileri"
+      fields: ["department", "position", "manager", "hire_date", "status"]
+    }
+    financial {
+      label: "Mali Bilgiler"
+      fields: ["salary"]
+      permissions: ["admin", "hr_manager"]
+    }
+  }
+  actions {
+    save {
+      label: "Kaydet"
+      style: "primary"
+    }
+    cancel {
+      label: "Iptal"
+      style: "secondary"
+    }
+  }
+}

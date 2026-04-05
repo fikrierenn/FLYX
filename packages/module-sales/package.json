@@ -1,0 +1,7 @@
+{
+  "name": "@flyx/module-sales",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./src/module.fsl",
+  "keywords": ["flyx", "module", "sales", "crm", "order"]
+}

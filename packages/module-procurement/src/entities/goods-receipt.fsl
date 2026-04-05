@@ -1,0 +1,35 @@
+// Mal Kabul (Goods Receipt)
+// Tedarikciden gelen mallarin depoya kabul islemlerini tanimlar.
+// Satin alma siparisine bagli olarak kalite kontrol ve kabul/red sureci yonetilir.
+
+entity GoodsReceipt {
+  fields {
+    // Mal kabul numarasi
+    receipt_no: String(20) { required, unique, indexed }
+
+    // Bagli satin alma siparisi
+    purchase_order: Relation(PurchaseOrder) { required }
+
+    // Kabul tarihi
+    receipt_date: Date { required }
+
+    // Teslim alinan depo
+    warehouse: Relation(Warehouse) { required }
+
+    // Kabul durumu - kalite kontrol sureci
+    status: Enum {
+      values: ["pending", "inspected", "accepted", "rejected"],
+      default: "pending"
+    }
+
+    // Aciklama / notlar
+    notes: Text
+  }
+
+  permissions {
+    create: ["admin", "procurement_manager", "warehouse_manager"]
+    read: ["admin", "procurement_manager", "warehouse_manager", "procurement_user"]
+    update: ["admin", "procurement_manager", "warehouse_manager"]
+    delete: ["admin"]
+  }
+}

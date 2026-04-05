@@ -1,0 +1,41 @@
+// Mali Donem (Fiscal Period)
+// Muhasebe kayitlarinin yapilabilecegi zaman dilimlerini tanimlar.
+// Kapali donemlere kayit yapilamaz, acik donemlere islem yapilabilir.
+
+entity FiscalPeriod {
+  fields {
+    // Donem kodu (orn: "2024-01", "2024-Q1")
+    code: String(10) { required, unique }
+
+    // Donem adi (orn: "Ocak 2024", "1. Ceyrek 2024")
+    name: String(100) { required }
+
+    // Donem baslangic tarihi
+    start_date: Date { required }
+
+    // Donem bitis tarihi
+    end_date: Date { required }
+
+    // Mali yil
+    year: Number { required }
+
+    // Ay numarasi (1-12, ceyrek donemlerde bos kalabilir)
+    month: Number
+
+    // Donem kapali mi? Kapali donemlere kayit yapilamaz
+    is_closed: Boolean { default: false }
+
+    // Donemi kapatan kullanici
+    closed_by: Relation(User)
+
+    // Kapanma tarihi ve saati
+    closed_at: DateTime
+  }
+
+  permissions {
+    create: ["admin"]
+    read: ["admin", "manager", "user"]
+    update: ["admin"]
+    delete: ["admin"]
+  }
+}

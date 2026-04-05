@@ -1,0 +1,47 @@
+// Firma (Company)
+// CRM kapsamindaki firma/sirket kayitlarini tanimlar.
+// Potansiyel musteri (prospect), aktif musteri ve pasif musteri durumlari desteklenir.
+
+entity Company {
+  fields {
+    // Firma adi / unvani
+    name: String(200) { required }
+
+    // Vergi kimlik numarasi
+    tax_id: String(20) { unique }
+
+    // Faaliyet sektoru
+    sector: String(100)
+
+    // Calisan sayisi
+    employee_count: Number
+
+    // Web sitesi
+    website: URL
+
+    // Telefon numarasi
+    phone: Phone
+
+    // Acik adres
+    address: Text
+
+    // Sehir
+    city: String(100)
+
+    // Yillik ciro
+    annual_revenue: Decimal(15,2)
+
+    // Firma durumu - satis hunisindeki konum
+    status: Enum {
+      values: ["prospect", "active", "inactive"],
+      default: "prospect"
+    }
+  }
+
+  permissions {
+    create: ["admin", "crm_manager", "crm_user", "sales_user"]
+    read: ["admin", "crm_manager", "crm_user", "sales_user", "manager"]
+    update: ["admin", "crm_manager", "crm_user"]
+    delete: ["admin", "crm_manager"]
+  }
+}

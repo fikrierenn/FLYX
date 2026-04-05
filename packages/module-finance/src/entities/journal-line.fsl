@@ -1,0 +1,32 @@
+// Muhasebe Fisi Satiri (Journal Entry Line)
+// Muhasebe fisinin her bir borc veya alacak satirini temsil eder.
+// Bir satirda ya borc ya da alacak dolu olur (diger sifir kalir).
+
+entity JournalLine {
+  fields {
+    // Ait oldugu muhasebe fisi
+    journal_entry: Relation(JournalEntry) { required }
+
+    // Hesap - hangi muhasebe hesabina kayit yapilacak
+    account: Relation(Account) { required }
+
+    // Borc tutari
+    debit: Decimal(15,2) { default: 0 }
+
+    // Alacak tutari
+    credit: Decimal(15,2) { default: 0 }
+
+    // Satir aciklamasi
+    description: String(500)
+
+    // Maliyet merkezi - yonetim muhasebesi icin
+    cost_center: Relation(CostCenter)
+  }
+
+  permissions {
+    create: ["admin", "manager"]
+    read: ["admin", "manager", "user"]
+    update: ["admin", "manager"]
+    delete: ["admin"]
+  }
+}

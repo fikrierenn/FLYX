@@ -1,0 +1,7 @@
+{
+  "name": "@flyx/module-procurement",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./src/module.fsl",
+  "keywords": ["flyx", "module", "procurement", "purchasing"]
+}

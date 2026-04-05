@@ -1,0 +1,65 @@
+// Urun / Malzeme (Product)
+// Stokta takip edilen urunleri, hammaddeleri ve hizmetleri tanimlar.
+// Barkod, agirlik, hacim, minimum/maksimum stok seviyeleri ve fiyat bilgilerini icerir.
+
+entity Product {
+  fields {
+    // Urun kodu - benzersiz tanimlayici
+    code: String(50) { required, unique, indexed }
+
+    // Urun adi
+    name: String(200) { required }
+
+    // Urun aciklamasi
+    description: Text
+
+    // Urun kategorisi (orn: "Elektronik", "Gida", "Hammadde")
+    category: String(100)
+
+    // Olcu birimi (orn: "ADET", "KG", "LT", "MT")
+    unit: String(20) { required, default: "ADET" }
+
+    // Barkod numarasi (EAN-13, UPC-A vb.)
+    barcode: String(50) { unique }
+
+    // Agirlik (kg cinsinden)
+    weight: Decimal(10,3)
+
+    // Hacim (m3 cinsinden)
+    volume: Decimal(10,3)
+
+    // Minimum stok seviyesi - bu seviyenin altina dusunce uyari verilir
+    min_stock: Decimal(10,3) { default: 0 }
+
+    // Maksimum stok seviyesi - depo kapasitesi siniri
+    max_stock: Decimal(10,3)
+
+    // Yeniden siparis noktasi - bu seviyeye dusunce tedarik siparisi olusturulur
+    reorder_point: Decimal(10,3)
+
+    // Birim maliyet (alis fiyati)
+    unit_cost: Decimal(15,2) { default: 0 }
+
+    // Satis fiyati (KDV haric)
+    sale_price: Decimal(15,2) { default: 0 }
+
+    // Varsayilan KDV orani (yuzde)
+    tax_rate: Decimal(5,2) { default: 18 }
+
+    // Urun aktif mi? Pasif urunler yeni islemlerde kullanilamaz
+    is_active: Boolean { default: true }
+
+    // Urun tipi - uretim sureclerinde farkli isleme tabi tutulur
+    product_type: Enum {
+      values: ["raw_material", "semi_finished", "finished", "service"],
+      default: "finished"
+    }
+  }
+
+  permissions {
+    create: ["admin", "manager"]
+    read: ["admin", "manager", "user"]
+    update: ["admin", "manager"]
+    delete: ["admin"]
+  }
+}

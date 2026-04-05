@@ -1,0 +1,29 @@
+// Hesap Plani Formu
+// Hesap olusturma ve duzenleme icin iki sutunlu form tasarimi.
+
+form AccountForm {
+  entity: Account
+  layout: "two_column"
+
+  sections {
+    general {
+      label: "Genel Bilgiler"
+      fields: ["code", "name", "account_type", "parent_account"]
+    }
+    settings {
+      label: "Hesap Ayarlari"
+      fields: ["currency", "is_active", "balance"]
+    }
+  }
+
+  actions {
+    save {
+      label: "Kaydet"
+      style: "primary"
+    }
+    cancel {
+      label: "Iptal"
+      style: "secondary"
+    }
+  }
+}

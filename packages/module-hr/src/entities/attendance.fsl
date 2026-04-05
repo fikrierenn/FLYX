@@ -1,0 +1,38 @@
+// Puantaj (Attendance)
+// Calisan gunluk devam ve mesai kayitlarini tanimlar.
+// Giris-cikis saatleri, calisan saat ve fazla mesai takibi yapilir.
+
+entity Attendance {
+  fields {
+    // Calisan
+    employee: Relation(Employee) { required }
+
+    // Tarih
+    date: Date { required }
+
+    // Giris saati
+    check_in: DateTime
+
+    // Cikis saati
+    check_out: DateTime
+
+    // Calisan saat
+    hours_worked: Decimal(4,2) { default: 0 }
+
+    // Fazla mesai saati
+    overtime_hours: Decimal(4,2) { default: 0 }
+
+    // Devam durumu
+    status: Enum {
+      values: ["present", "absent", "late", "half_day"],
+      default: "present"
+    }
+  }
+
+  permissions {
+    create: ["admin", "hr_manager", "hr_user"]
+    read: ["admin", "hr_manager", "hr_user", "manager"]
+    update: ["admin", "hr_manager"]
+    delete: ["admin"]
+  }
+}

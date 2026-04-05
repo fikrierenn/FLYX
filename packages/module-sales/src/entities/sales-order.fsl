@@ -1,0 +1,54 @@
+// Satis Siparisi (Sales Order)
+// Musteriye yapilan satis siparislerini tanimlar.
+// Siparis satirlari SalesOrderItem entity'sinde tutulur.
+
+entity SalesOrder {
+  fields {
+    // Siparis numarasi - otomatik artan veya onek ile uretilir
+    order_no: String(20) { required, unique, indexed }
+
+    // Siparis verilen musteri
+    customer: Relation(Customer) { required }
+
+    // Siparis tarihi
+    order_date: Date { required }
+
+    // Teslim tarihi (tahmini veya taahhut edilen)
+    delivery_date: Date
+
+    // Ara toplam (KDV haric)
+    subtotal: Decimal(15,2) { default: 0 }
+
+    // Toplam vergi tutari
+    tax_amount: Decimal(15,2) { default: 0 }
+
+    // Genel toplam (KDV dahil)
+    total: Decimal(15,2) { default: 0 }
+
+    // Siparis para birimi
+    currency: String(3) { default: "TRY" }
+
+    // Siparis durumu - yasam dongusu asamalari
+    status: Enum {
+      values: ["draft", "confirmed", "shipped", "delivered", "cancelled"],
+      default: "draft"
+    }
+
+    // Siparis notlari
+    notes: Text
+  }
+
+  permissions {
+    create: ["admin", "manager", "user"]
+    read: ["admin", "manager", "user"]
+    update: ["admin", "manager"]
+    delete: ["admin"]
+  }
+
+  triggers {
+    after_update {
+      // Siparis onaylandiginda stok rezervasyonu yap
+      // Siparis iptal edildiginde stok rezervasyonunu kaldir
+    }
+  }
+}
