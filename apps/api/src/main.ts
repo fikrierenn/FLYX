@@ -1,34 +1,36 @@
 /**
- * FLYX Platform API - Ana Giriş Noktası
+ * FLYX Platform API - Ana Giris Noktasi
  * =======================================
- * NestJS tabanlı REST API sunucusu.
+ * NestJS tabanli REST API sunucusu.
  *
- * Özellikler:
- * - Multi-tenant mimari (subdomain veya header ile tenant çözümleme)
- * - JWT tabanlı kimlik doğrulama
- * - RBAC (Rol Bazlı Erişim Kontrolü)
- * - Swagger API dokümantasyonu (/api/docs)
- * - FSL derleme endpoint'leri
- * - Dinamik entity CRUD
- *
- * Çalıştırma:
- *   npm run start      → Production (dist/main.js)
- *   npm run start:dev  → Development (ts-node ile)
+ * Ozellikler:
+ * - Multi-tenant mimari
+ * - JWT kimlik dogrulama (access + refresh token)
+ * - RBAC (Rol Bazli Erisim Kontrolu)
+ * - Swagger API dokumantasyonu (/api/docs)
+ * - Helmet guvenlik header'lari
+ * - Rate limiting
+ * - Global exception filter
+ * - Health check endpoint
  */
 
 import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { ConfigService } from '@nestjs/config';
+import helmet from 'helmet';
 import { AppModule } from './app.module';
+import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const config = app.get(ConfigService);
 
-  // Gelen isteklerdeki DTO'ları otomatik doğrula
-  // whitelist: DTO'da tanımlı olmayan alanları otomatik sil
-  // transform: string → number gibi tip dönüşümlerini otomatik yap
-  // forbidNonWhitelisted: tanımsız alan gelirse 400 hatası ver
+  // Guvenlik header'lari (XSS, clickjacking, sniffing korumasi)
+  app.use(helmet());
+
+  // Global validation pipe
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -37,25 +39,38 @@ async function bootstrap() {
     }),
   );
 
-  // Tüm origin'lerden gelen isteklere izin ver (geliştirme için)
-  // Üretimde belirli domain'lerle sınırlandırılmalı
-  app.enableCors();
+  // Global exception filter (yapisal hata yanitlari)
+  app.useGlobalFilters(new GlobalExceptionFilter());
 
-  // Swagger UI yapılandırması - /api/docs adresinde erişilebilir
-  // Tüm endpoint'ler otomatik olarak NestJS decorator'larından üretilir
-  const config = new DocumentBuilder()
+  // CORS - ortam degiskeninden oku
+  const corsOrigins = config.get<string[]>('cors.origins') || ['http://localhost:5173'];
+  app.enableCors({
+    origin: corsOrigins,
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Tenant-ID'],
+  });
+
+  // API versioning prefix
+  app.setGlobalPrefix('', { exclude: ['health', 'health/ready'] });
+
+  // Swagger
+  const swaggerConfig = new DocumentBuilder()
     .setTitle('FLYX Platform API')
-    .setDescription('Multi-tenant business application platform')
+    .setDescription('Multi-tenant enterprise application platform')
     .setVersion('0.1.0')
     .addBearerAuth()
+    .addApiKey({ type: 'apiKey', name: 'X-Tenant-ID', in: 'header' }, 'tenant')
     .build();
 
-  const document = SwaggerModule.createDocument(app, config);
+  const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('api/docs', app, document);
 
-  const port = process.env.PORT || 3000;
+  const port = config.get<number>('port') || 3000;
   await app.listen(port);
   console.log(`FLYX API running on port ${port}`);
+  console.log(`Swagger: http://localhost:${port}/api/docs`);
+  console.log(`Health: http://localhost:${port}/health`);
 }
 
 bootstrap();

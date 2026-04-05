@@ -1,32 +1,57 @@
 /**
- * FLYX Platform - Ana Uygulama Modülü
+ * FLYX Platform - Ana Uygulama Modulu
  * ====================================
- * Tüm alt modülleri bir araya getirir ve global middleware'leri yapılandırır.
- *
- * Modüller:
- * - TenantModule: Çoklu kiracı (multi-tenant) yönetimi
- * - AuthModule: JWT kimlik doğrulama ve yetkilendirme
- * - FSLModule: FSL kodu derleme ve SQL üretme endpoint'leri
- * - EntitiesModule: Dinamik entity CRUD işlemleri
- *
- * Middleware:
- * - TenantMiddleware: Her isteğe tenant_id bağlamı ekler
- *   (subdomain veya X-Tenant-ID header'ından çözümlenir)
+ * Tum alt modulleri birlestir, middleware ve guard'lari yapilandir.
  */
 
 import { Module, MiddlewareConsumer, NestModule } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
+
+import { envConfig } from './config/env.config';
 import { TenantMiddleware } from './common/middleware/tenant.middleware';
+
+// Moduller
+import { DatabaseModule } from './modules/database/database.module';
+import { HealthModule } from './modules/health/health.module';
 import { TenantModule } from './modules/tenant/tenant.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { UsersModule } from './modules/users/users.module';
 import { FSLModule } from './modules/fsl/fsl.module';
 import { EntitiesModule } from './modules/entities/entities.module';
 
 @Module({
-  imports: [TenantModule, AuthModule, FSLModule, EntitiesModule],
+  imports: [
+    // Ortam degiskenleri
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [envConfig],
+    }),
+
+    // Rate limiting (varsayilan: 100 istek / 60 saniye)
+    ThrottlerModule.forRoot([{
+      ttl: 60000,
+      limit: 100,
+    }]),
+
+    // Altyapi
+    DatabaseModule,
+    HealthModule,
+
+    // Is modulleri
+    TenantModule,
+    AuthModule,
+    UsersModule,
+    FSLModule,
+    EntitiesModule,
+  ],
+  providers: [
+    // Global rate limit guard
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
+  ],
 })
 export class AppModule implements NestModule {
-  // TenantMiddleware tüm route'lara uygulanır ('*')
-  // Her gelen istek önce tenant bağlamından geçer
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(TenantMiddleware).forRoutes('*');
   }

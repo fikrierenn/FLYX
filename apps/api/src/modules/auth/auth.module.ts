@@ -1,13 +1,19 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [
-    JwtModule.register({
-      secret: process.env.JWT_SECRET || 'flyx-dev-secret',
-      signOptions: { expiresIn: '24h' },
+    UsersModule,
+    JwtModule.registerAsync({
+      useFactory: (config: ConfigService) => ({
+        secret: config.get<string>('jwt.secret'),
+        signOptions: { expiresIn: config.get<string>('jwt.expiresIn') || '15m' },
+      }),
+      inject: [ConfigService],
     }),
   ],
   providers: [AuthService],
