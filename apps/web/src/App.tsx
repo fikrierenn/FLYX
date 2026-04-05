@@ -14,6 +14,7 @@ import { FormsPage } from './pages/Forms/FormsPage';
 import { WorkflowsPage } from './pages/Workflows/WorkflowsPage';
 import { ReportsPage } from './pages/Reports/ReportsPage';
 import { UsersPage } from './pages/Users/UsersPage';
+import { PermissionsPage } from './pages/Permissions/PermissionsPage';
 
 function ProtectedLayout() {
   const { user, logout } = useAuthStore();
@@ -30,7 +31,10 @@ function ProtectedLayout() {
             <a href="/workflows" className="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100">Workflows</a>
             <a href="/reports" className="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100">Reports</a>
             {user?.roles?.includes('admin') && (
-              <a href="/users" className="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100">Users</a>
+              <>
+                <a href="/users" className="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100">Users</a>
+                <a href="/permissions" className="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100">Yetkiler</a>
+              </>
             )}
             <div className="w-px h-5 bg-gray-300 mx-2" />
             <span className="text-xs text-gray-500">{user?.email}</span>
@@ -48,6 +52,7 @@ function ProtectedLayout() {
           <Route path="/workflows" element={<WorkflowsPage />} />
           <Route path="/reports" element={<ReportsPage />} />
           <Route path="/users" element={<UsersPage />} />
+          <Route path="/permissions" element={<PermissionsPage />} />
         </Routes>
       </main>
     </div>

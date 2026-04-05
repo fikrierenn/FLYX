@@ -21,6 +21,7 @@ import { UsersModule } from './modules/users/users.module';
 import { FSLModule } from './modules/fsl/fsl.module';
 import { EntitiesModule } from './modules/entities/entities.module';
 import { AuditModule } from './modules/audit/audit.module';
+import { RolesModule } from './modules/roles/roles.module';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { AuditModule } from './modules/audit/audit.module';
     FSLModule,
     EntitiesModule,
     AuditModule,
+    RolesModule,
   ],
   providers: [
     // Global rate limit guard
