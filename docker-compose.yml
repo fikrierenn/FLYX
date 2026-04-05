@@ -1,0 +1,61 @@
+# FLYX Platform - Docker Compose
+# PostgreSQL + API + Web birlikte calistirma
+#
+# Kullanim:
+#   docker-compose up -d          # Baslat
+#   docker-compose logs -f api    # API loglarini izle
+#   docker-compose down           # Durdur
+
+version: '3.8'
+
+services:
+  # PostgreSQL Veritabani
+  db:
+    image: postgres:16-alpine
+    container_name: flyx-db
+    environment:
+      POSTGRES_DB: flyx
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - flyx-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # NestJS API
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: flyx-api
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/flyx
+      JWT_SECRET: flyx-docker-secret-change-in-production
+      JWT_REFRESH_SECRET: flyx-docker-refresh-secret
+      PORT: 3000
+      CORS_ORIGINS: http://localhost:5173,http://localhost:3001
+      NODE_ENV: production
+    ports:
+      - "3000:3000"
+
+  # React Web (Vite preview)
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    container_name: flyx-web
+    depends_on:
+      - api
+    ports:
+      - "5173:5173"
+
+volumes:
+  flyx-db-data:
