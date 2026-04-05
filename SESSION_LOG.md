@@ -223,3 +223,35 @@ FSL methods/triggers → RecordContext (this nesnesi) → ExpressionExecutor
 8. **Tenant UUID**: String "default" degil, gercek UUID kullan
 9. **Modul isimlendirme**: SAP'i birebir kopyalama, FLYX'e ozel ama dogal isimler
 10. **Satinalma ve stok ayri**: SAP MM → INV (stok) + PRC (satinalma) + WMS (depo)
+
+---
+
+## SONRAKI SESSION: ABAP + RAKIP DIL ARASTIRMASI
+
+Sabah yapilacak: ABAP ve benzer ERP dilleri hakkinda derin arastirma.
+
+### Arastirilacak Diller:
+1. **ABAP** (SAP) - Handikaplari, gucleri, syntax, runtime, transport system
+2. **1C:Enterprise Language** (1C) - Visual programming, form engine, query language
+3. **X++** (Microsoft Dynamics 365 / AX) - .NET tabanli, AOT, data access
+4. **AL** (Microsoft Dynamics 365 Business Central) - Modern, VS Code entegrasyonlu
+5. **PeopleCode** (Oracle PeopleSoft) - Event-driven, Component Processor
+6. **ABSL/CDL** (SAP Business ByDesign) - ABAP'in bulut versiyonu
+7. **Apex** (Salesforce) - Java benzeri, governor limits, bulut-native
+8. **iasScript** (Canias ERP) - Turk yapimi ERP dili
+
+### Arastirilacak Konular:
+- Her dilin syntax ozellikleri ve FSL'e neler alinabilir
+- ABAP handikaplari ve FSL'de nasil cozulecegi
+- Transaction yonetimi (LUW kavrami)
+- Enhancement/Exit noktalari (genisletilebilirlik)
+- Raporlama dili (ABAP ALV, 1C Data Composition)
+- Yetkilendirme modeli (SAP auth objects vs FSL permissions)
+- Veri sozlugu (ABAP DDIC vs FSL entity)
+- Belge akisi (siparis→irsaliye→fatura zinciri nasil tanimlanir)
+- Form tasarimi (SAPScript, SmartForms, Adobe Forms vs FSL Forms)
+- Performans: N+1, buffering, lazy loading
+
+### Hedef:
+FSL'i sadece "bir DSL" degil, ABAP/X++/AL seviyesinde guclu bir ERP dili yapmak.
+Handikaplari almadan, gucleri alarak.
