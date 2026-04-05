@@ -30,7 +30,7 @@ export function WorkflowPropertyPanel({ selectedNode, onUpdateNode }: WorkflowPr
 
   return (
     <div className="space-y-4">
-      <h3 className="text-sm font-semibold text-gray-500 uppercase">
+      <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
         {data.type === 'decision' ? 'Karar' :
          data.type === 'approval' ? 'Onay' :
          data.type === 'action' ? 'Aksiyon' :

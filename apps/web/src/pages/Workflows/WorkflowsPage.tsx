@@ -9,7 +9,7 @@ import { WorkflowDesigner } from '../../components/designers/WorkflowDesigner/Wo
 export function WorkflowsPage() {
   return (
     <div>
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">Workflow Designer</h2>
+      <h1 className="text-2xl font-bold text-gray-800 mb-6">Workflow Designer</h1>
       <WorkflowDesigner />
     </div>
   );

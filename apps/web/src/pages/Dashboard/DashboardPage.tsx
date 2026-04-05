@@ -10,7 +10,7 @@ const stats = [
 export function DashboardPage() {
   return (
     <div>
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">Dashboard</h2>
+      <h1 className="text-2xl font-bold text-gray-800 mb-6">Dashboard</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((stat) => (
           <div key={stat.label} className="bg-white rounded-lg shadow p-6 flex items-center gap-4">

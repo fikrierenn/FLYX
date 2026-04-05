@@ -27,7 +27,7 @@ export function EntitiesPage() {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">Entity Designer</h2>
+      <h1 className="text-2xl font-bold text-gray-800 mb-6">Entity Designer</h1>
       <div className="bg-white rounded-lg shadow">
         <FSLEditor value={fslCode} onChange={setFslCode} />
       </div>

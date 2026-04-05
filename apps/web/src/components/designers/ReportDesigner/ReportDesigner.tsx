@@ -174,8 +174,8 @@ export function ReportDesigner() {
   return (
     <div className="grid grid-cols-12 gap-4 h-[calc(100vh-180px)]">
       {/* Sol: Sutun Secici */}
-      <div className="col-span-2 bg-white rounded-lg shadow p-4 overflow-y-auto">
-        <h3 className="text-sm font-semibold text-gray-500 uppercase mb-3">Sutunlar</h3>
+      <div className="col-span-2 bg-white rounded-lg shadow p-4 overflow-y-auto border-r border-gray-200">
+        <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Sutunlar</h3>
         <div className="space-y-1">
           {columns.map((col) => (
             <label key={col.id} className="flex items-center gap-2 px-2 py-1 text-xs hover:bg-gray-50 rounded cursor-pointer">
@@ -192,7 +192,7 @@ export function ReportDesigner() {
 
         {/* Parametre Ekleme */}
         <div className="mt-6 pt-4 border-t">
-          <h3 className="text-sm font-semibold text-gray-500 uppercase mb-2">Parametreler</h3>
+          <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Parametreler</h3>
           {parameters.map((p) => (
             <div key={p.id} className="text-xs text-gray-600 px-2 py-1">
               {p.label} ({p.type})
@@ -202,7 +202,7 @@ export function ReportDesigner() {
       </div>
 
       {/* Orta: Rapor Onizleme */}
-      <div className="col-span-7 bg-white rounded-lg shadow p-4 overflow-y-auto">
+      <div className="col-span-7 bg-gray-50 rounded-lg shadow p-4 overflow-y-auto">
         <h3 className="text-lg font-semibold text-gray-800 mb-4">{reportTitle}</h3>
 
         {/* Tablo */}
@@ -214,7 +214,7 @@ export function ReportDesigner() {
                   <th
                     key={col.id}
                     onClick={() => { setSortBy(col.name); setSortDir((d) => d === 'ASC' ? 'DESC' : 'ASC'); }}
-                    className="px-4 py-2 text-left font-medium text-gray-600 cursor-pointer hover:bg-gray-100"
+                    className="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                   >
                     {col.label}
                     {sortBy === col.name && (sortDir === 'ASC' ? ' ↑' : ' ↓')}
@@ -249,8 +249,8 @@ export function ReportDesigner() {
       </div>
 
       {/* Sag: Ayarlar Paneli */}
-      <div className="col-span-3 bg-white rounded-lg shadow p-4 overflow-y-auto space-y-4">
-        <h3 className="text-sm font-semibold text-gray-500 uppercase">Rapor Ayarlari</h3>
+      <div className="col-span-3 bg-white rounded-lg shadow p-4 overflow-y-auto space-y-4 border-l border-gray-200">
+        <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Rapor Ayarlari</h3>
 
         <div>
           <label className="block text-xs text-gray-500 mb-1">Rapor Adi</label>
@@ -323,11 +323,11 @@ export function ReportDesigner() {
       </div>
 
       {/* Alt: FSL Kod Onizleme */}
-      <div className="col-span-12 bg-gray-900 rounded-lg shadow p-4 max-h-[200px] overflow-auto">
+      <div className="col-span-12 bg-gray-900 rounded-lg shadow p-4 max-h-[200px] overflow-auto border-t">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-xs text-gray-500 uppercase">Uretilen FSL Kodu</span>
+          <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">Uretilen FSL Kodu</span>
           <button onClick={() => navigator.clipboard.writeText(fslCode)}
-            className="text-xs text-gray-400 hover:text-white">Kopyala</button>
+            className="text-xs text-gray-400 hover:text-white transition-colors">Kopyala</button>
         </div>
         <pre className="text-green-400 text-sm font-mono">{fslCode}</pre>
       </div>

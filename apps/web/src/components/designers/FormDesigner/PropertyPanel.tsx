@@ -25,7 +25,7 @@ export function PropertyPanel({
     <div className="space-y-6">
       {/* Form Properties */}
       <div>
-        <h3 className="text-sm font-semibold text-gray-500 uppercase mb-3">Form Settings</h3>
+        <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Form Settings</h3>
         <div className="space-y-3">
           <div>
             <label className="block text-xs text-gray-500 mb-1">Form Name</label>
@@ -62,7 +62,7 @@ export function PropertyPanel({
       {/* Selected Field Properties */}
       {field && (
         <div>
-          <h3 className="text-sm font-semibold text-gray-500 uppercase mb-3">Field Properties</h3>
+          <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Field Properties</h3>
           <div className="space-y-3">
             <div>
               <label className="block text-xs text-gray-500 mb-1">Label</label>

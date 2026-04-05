@@ -9,7 +9,7 @@ import { ReportDesigner } from '../../components/designers/ReportDesigner/Report
 export function ReportsPage() {
   return (
     <div>
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">Report Designer</h2>
+      <h1 className="text-2xl font-bold text-gray-800 mb-6">Report Designer</h1>
       <ReportDesigner />
     </div>
   );

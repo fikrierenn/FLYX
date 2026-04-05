@@ -20,7 +20,7 @@ interface FieldToolboxProps {
 export function FieldToolbox({ onAddField }: FieldToolboxProps) {
   return (
     <div>
-      <h3 className="text-sm font-semibold text-gray-500 uppercase mb-3">Fields</h3>
+      <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Fields</h3>
       <div className="space-y-2">
         {FIELD_TYPES.map((field) => (
           <button

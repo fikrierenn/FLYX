@@ -174,12 +174,12 @@ export function FormDesigner() {
     >
       <div className="grid grid-cols-12 gap-4 h-[calc(100vh-180px)]">
         {/* Left: Field Toolbox */}
-        <div className="col-span-2 bg-white rounded-lg shadow p-4 overflow-y-auto">
+        <div className="col-span-2 bg-white rounded-lg shadow p-4 overflow-y-auto border-r border-gray-200">
           <FieldToolbox onAddField={addField} />
         </div>
 
         {/* Center: Canvas */}
-        <div className="col-span-7 bg-white rounded-lg shadow p-4 overflow-y-auto">
+        <div className="col-span-7 bg-gray-50 rounded-lg shadow p-4 overflow-y-auto">
           {/* Section tabs */}
           <div className="flex items-center gap-2 mb-4 border-b pb-2">
             {sections.map((s) => (
@@ -214,7 +214,7 @@ export function FormDesigner() {
         </div>
 
         {/* Right: Property Panel */}
-        <div className="col-span-3 bg-white rounded-lg shadow p-4 overflow-y-auto">
+        <div className="col-span-3 bg-white rounded-lg shadow p-4 overflow-y-auto border-l border-gray-200">
           <PropertyPanel
             field={selectedField}
             onUpdate={updateField}
@@ -228,12 +228,12 @@ export function FormDesigner() {
         </div>
 
         {/* Bottom: FSL Code Preview */}
-        <div className="col-span-12 bg-gray-900 rounded-lg shadow p-4 max-h-[200px] overflow-auto">
+        <div className="col-span-12 bg-gray-900 rounded-lg shadow p-4 max-h-[200px] overflow-auto border-t">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs text-gray-500 uppercase">Generated FSL</span>
+            <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">Generated FSL</span>
             <button
               onClick={() => navigator.clipboard.writeText(fslCode)}
-              className="text-xs text-gray-400 hover:text-white"
+              className="text-xs text-gray-400 hover:text-white transition-colors"
             >
               Copy
             </button>

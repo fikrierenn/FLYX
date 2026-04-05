@@ -4,7 +4,7 @@ import { FormDesigner } from '../../components/designers/FormDesigner/FormDesign
 export function FormsPage() {
   return (
     <div>
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">Form Designer</h2>
+      <h1 className="text-2xl font-bold text-gray-800 mb-6">Form Designer</h1>
       <FormDesigner />
     </div>
   );

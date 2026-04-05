@@ -21,15 +21,15 @@ import { ReportsPage } from './pages/Reports/ReportsPage';
 export function App() {
   return (
     <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white border-b border-gray-200 px-6 py-3">
-        <div className="flex items-center justify-between">
-          <h1 className="text-xl font-bold text-primary-600">FLYX Platform</h1>
-          <div className="flex gap-4">
-            <a href="/" className="text-gray-600 hover:text-primary-600">Dashboard</a>
-            <a href="/entities" className="text-gray-600 hover:text-primary-600">Entities</a>
-            <a href="/forms" className="text-gray-600 hover:text-primary-600">Forms</a>
-            <a href="/workflows" className="text-gray-600 hover:text-primary-600">Workflows</a>
-            <a href="/reports" className="text-gray-600 hover:text-primary-600">Reports</a>
+      <nav className="sticky top-0 z-40 bg-white border-b border-gray-200 shadow-sm">
+        <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
+          <h1 className="text-lg font-bold text-blue-600">FLYX Platform</h1>
+          <div className="flex gap-1">
+            <a href="/" className="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100">Dashboard</a>
+            <a href="/entities" className="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100">Entities</a>
+            <a href="/forms" className="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100">Forms</a>
+            <a href="/workflows" className="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100">Workflows</a>
+            <a href="/reports" className="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100">Reports</a>
           </div>
         </div>
       </nav>

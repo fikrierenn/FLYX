@@ -99,6 +99,7 @@ export function Canvas({ fields, selectedField, onSelect, onRemove }: CanvasProp
     return (
       <div className="h-full min-h-[300px] flex items-center justify-center text-gray-400 border-2 border-dashed border-gray-200 rounded-lg">
         <div className="text-center">
+          <p className="text-4xl mb-3">📋</p>
           <p className="text-lg mb-1">Drop zone</p>
           <p className="text-sm">Click fields from the toolbox to add them here</p>
         </div>

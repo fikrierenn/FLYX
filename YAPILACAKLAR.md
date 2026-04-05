@@ -250,19 +250,31 @@ Son Guncelleme: 2026-04-05
 
 ---
 
-## 13. WORKFLOW VISUAL DESIGNER (Oncelik: ORTA)
+## 13. WORKFLOW VISUAL DESIGNER (TAMAM)
 
-- [ ] react-flow entegrasyonu
-- [ ] Node tipleri (Start, End, Decision, Approval, Action, Wait, Parallel)
-- [ ] Property panel + FSL kod uretimi
+- [x] @xyflow/react entegrasyonu
+- [x] 6 Node tipi (Start, End, Decision, Approval, Action, Wait)
+- [x] Property panel (node tipine gore farkli ozellikler)
+- [x] FSL kod uretimi (generateWorkflowFSL)
+- [x] /workflows route + navigasyon
+- [ ] Parallel node tipi
+- [ ] Workflow test/simulasyon
 
 ---
 
-## 14. REPORT VISUAL DESIGNER (Oncelik: ORTA)
+## 14. REPORT VISUAL DESIGNER (TAMAM)
 
-- [ ] Column secici, Filter builder, Chart onizleme
+- [x] Column secici (checkbox toggle)
+- [x] Siralabilir tablo onizleme (mock data)
+- [x] Bar chart gorsellestime (SVG)
+- [x] Grafik tipi secimi (bar, line, pie, none)
+- [x] X/Y eksen konfigurasyonu
+- [x] Sutun etiketi duzenleme
+- [x] Parametre destegi (DateRange)
+- [x] FSL kod uretimi + kopyala butonu
+- [x] /reports route + navigasyon
 - [ ] Export (PDF, Excel, CSV)
-- [ ] FSL kod uretimi
+- [ ] Filter builder (kosul ekleme)
 
 ---
 
@@ -355,11 +367,12 @@ Son Guncelleme: 2026-04-05
 16. ~~Full test coverage (78 test, 8 snapshot)~~
 17. ~~V1 generator migration (core/naming + core/type-mapper)~~
 
-### Faz 3 - Developer Experience (DEVAM EDIYOR)
+### Faz 3 - Developer Experience (TAMAM)
 17. ~~@flyx/desktop renderer (Entity Designer, Sidebar, Tabs, Transaction Codes)~~
 18. ~~@flyx/vscode extension (syntax, snippets, diagnostics, commands)~~
-19. Workflow Visual Designer
-20. Report Visual Designer
+19. ~~Workflow Visual Designer (React Flow, 6 node, FSL uretimi)~~
+20. ~~Report Visual Designer (tablo, grafik, FSL uretimi)~~
+21. ~~README.md~~
 
 ### Faz 4 - AI & Moduller
 21. @flyx/ai services

@@ -126,8 +126,8 @@ export function WorkflowDesigner() {
   return (
     <div className="grid grid-cols-12 gap-4 h-[calc(100vh-180px)]">
       {/* Sol: Node Toolbox */}
-      <div className="col-span-2 bg-white rounded-lg shadow p-4 overflow-y-auto">
-        <h3 className="text-sm font-semibold text-gray-500 uppercase mb-3">Adimlar</h3>
+      <div className="col-span-2 bg-white rounded-lg shadow p-4 overflow-y-auto border-r border-gray-200">
+        <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Adimlar</h3>
         <div className="space-y-2">
           {NODE_TOOLBOX.map((item) => (
             <button
@@ -143,7 +143,7 @@ export function WorkflowDesigner() {
 
         {/* Workflow ayarlari */}
         <div className="mt-6 pt-4 border-t space-y-3">
-          <h3 className="text-sm font-semibold text-gray-500 uppercase">Workflow</h3>
+          <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Workflow</h3>
           <div>
             <label className="block text-xs text-gray-500 mb-1">Isim</label>
             <input
@@ -164,7 +164,7 @@ export function WorkflowDesigner() {
       </div>
 
       {/* Orta: React Flow Canvas */}
-      <div className="col-span-7 bg-white rounded-lg shadow overflow-hidden">
+      <div className="col-span-7 bg-gray-50 rounded-lg shadow overflow-hidden">
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -183,17 +183,17 @@ export function WorkflowDesigner() {
       </div>
 
       {/* Sag: Property Panel */}
-      <div className="col-span-3 bg-white rounded-lg shadow p-4 overflow-y-auto">
+      <div className="col-span-3 bg-white rounded-lg shadow p-4 overflow-y-auto border-l border-gray-200">
         <WorkflowPropertyPanel selectedNode={selectedNode} onUpdateNode={updateNodeData} />
       </div>
 
       {/* Alt: FSL Kod Onizleme */}
-      <div className="col-span-12 bg-gray-900 rounded-lg shadow p-4 max-h-[200px] overflow-auto">
+      <div className="col-span-12 bg-gray-900 rounded-lg shadow p-4 max-h-[200px] overflow-auto border-t">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-xs text-gray-500 uppercase">Uretilen FSL Kodu</span>
+          <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">Uretilen FSL Kodu</span>
           <button
             onClick={() => navigator.clipboard.writeText(fslCode)}
-            className="text-xs text-gray-400 hover:text-white"
+            className="text-xs text-gray-400 hover:text-white transition-colors"
           >
             Kopyala
           </button>
