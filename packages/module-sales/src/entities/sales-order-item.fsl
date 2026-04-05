@@ -1,35 +1,44 @@
 // Satis Siparisi Kalemi (Sales Order Item)
-// Siparisin her bir urun satirini temsil eder.
-// Miktar, birim fiyat, indirim ve KDV bilgilerini icerir.
+// ABAP'taki VBAP tablosu gibi - her siparis satirinin detayi.
+// Hesaplama mantigi FSL methods + triggers ile tanimli.
 
 entity SalesOrderItem {
   fields {
-    // Ait oldugu satis siparisi
     sales_order: Relation(SalesOrder) { required }
-
-    // Siparis edilen urun
     product: Relation(Product) { required }
-
-    // Miktar (ondalikli - kg, lt gibi birimler icin)
     quantity: Decimal(10,3) { required, min: 0 }
-
-    // Birim fiyat (KDV haric)
     unit_price: Decimal(15,2) { required, min: 0 }
-
-    // Indirim orani (yuzde olarak, orn: 10.00 = %10)
     discount_rate: Decimal(5,2) { default: 0 }
-
-    // KDV orani (yuzde olarak)
     tax_rate: Decimal(5,2) { default: 18 }
-
-    // Satir toplami (miktar * birim fiyat * (1 - indirim) * (1 + KDV))
     line_total: Decimal(15,2) { default: 0 }
+    discount_amount: Decimal(15,2) { default: 0 }
+    tax_amount: Decimal(15,2) { default: 0 }
+    net_total: Decimal(15,2) { default: 0 }
+  }
+
+  methods {
+    calculate() {
+      this.line_total = this.quantity * this.unit_price;
+      this.discount_amount = this.line_total * this.discount_rate / 100;
+      let after_discount = this.line_total - this.discount_amount;
+      this.tax_amount = after_discount * this.tax_rate / 100;
+      this.net_total = after_discount + this.tax_amount;
+    }
+  }
+
+  triggers {
+    before_create {
+      this.calculate();
+    }
+    before_update {
+      this.calculate();
+    }
   }
 
   permissions {
-    create: ["admin", "manager", "user"]
-    read: ["admin", "manager", "user"]
-    update: ["admin", "manager"]
-    delete: ["admin", "manager"]
+    create: ["admin"]
+    read: ["admin"]
+    update: ["admin"]
+    delete: ["admin"]
   }
 }

@@ -19,6 +19,7 @@ import type { EntityDeclaration, FormDeclaration, Declaration } from '@flyx/fsl-
 import { TableGenerator } from '@flyx/database-engine';
 import { DatabaseService } from '../database/database.module';
 import { RolesService } from '../roles/roles.service';
+import { FSLRuntime } from '@flyx/runtime-engine';
 
 export interface LoadedEntity {
   name: string;
@@ -26,6 +27,8 @@ export interface LoadedEntity {
   fields: EntityDeclaration['fields'];
   sql: string;
   permissions?: EntityDeclaration['permissions'];
+  /** AST referansi - runtime engine trigger/method calistirmak icin */
+  ast: EntityDeclaration;
 }
 
 export interface LoadedForm {
@@ -41,6 +44,7 @@ export class RuntimeService implements OnModuleInit {
   private readonly logger = new Logger('RuntimeService');
   private readonly compiler = new FSLCompiler();
   private readonly tableGenerator = new TableGenerator();
+  private readonly fslRuntime = new FSLRuntime();
 
   private entities = new Map<string, LoadedEntity>();
   private forms = new Map<string, LoadedForm>();
@@ -51,6 +55,9 @@ export class RuntimeService implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
+    // Runtime engine'e DB sorgu calistiricisini bagla
+    this.fslRuntime.setQueryExecutor(this.db);
+
     // Baslandiginda modulleri otomatik yukle
     const modulePaths = this.findModulePaths();
     if (modulePaths.length > 0) {
@@ -147,6 +154,7 @@ export class RuntimeService implements OnModuleInit {
       tableName,
       fields: entity.fields,
       sql,
+      ast: entity,
       permissions: entity.permissions,
     };
 
@@ -229,10 +237,13 @@ export class RuntimeService implements OnModuleInit {
     return result.rows[0] || null;
   }
 
-  /** Yeni kayit olustur */
+  /** Yeni kayit olustur - before_create trigger otomatik calisir */
   async create(entityName: string, data: Record<string, any>, tenantId: string, userId?: string): Promise<any> {
     const entity = this.entities.get(entityName);
     if (!entity) throw new Error(`Entity bulunamadi: ${entityName}`);
+
+    // FSL before_create trigger'ini calistir (hesaplama, varsayilan deger atama vb.)
+    data = this.fslRuntime.executeTrigger(entity.ast, 'before_create', data);
 
     const columns = ['tenant_id', 'created_at'];
     const values: any[] = [tenantId, new Date()];
@@ -256,13 +267,25 @@ export class RuntimeService implements OnModuleInit {
     const sql = `INSERT INTO ${entity.tableName} (${columns.join(', ')}) VALUES (${placeholders.join(', ')}) RETURNING *`;
 
     const result = await this.db.query(sql, values);
-    return result.rows[0];
+    const created = result.rows[0];
+
+    // FSL after_create trigger'ini calistir (email gonderme, log atma vb.)
+    try {
+      this.fslRuntime.executeTrigger(entity.ast, 'after_create', created);
+    } catch (err: any) {
+      this.logger.warn(`after_create trigger hatasi (${entityName}): ${err.message}`);
+    }
+
+    return created;
   }
 
-  /** Kayit guncelle */
+  /** Kayit guncelle - before_update trigger otomatik calisir */
   async update(entityName: string, id: string, data: Record<string, any>, tenantId: string, userId?: string): Promise<any> {
     const entity = this.entities.get(entityName);
     if (!entity) throw new Error(`Entity bulunamadi: ${entityName}`);
+
+    // FSL before_update trigger'ini calistir
+    data = this.fslRuntime.executeTrigger(entity.ast, 'before_update', data);
 
     const setParts: string[] = ['updated_at = NOW()'];
     const values: any[] = [];
