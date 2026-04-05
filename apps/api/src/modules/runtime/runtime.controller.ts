@@ -24,6 +24,9 @@ import {
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { RuntimeService } from './runtime.service';
 
+// Varsayilan tenant UUID (gelistirme icin)
+const DEFAULT_TENANT = '00000000-0000-0000-0000-000000000001';
+
 @ApiTags('data')
 @ApiBearerAuth()
 @Controller('v1/data')
@@ -74,7 +77,7 @@ export class RuntimeController {
     @Query('limit') limit?: number,
   ) {
     try {
-      return await this.runtime.findAll(entity, 'default', page || 1, limit || 20);
+      return await this.runtime.findAll(entity, DEFAULT_TENANT, page || 1, limit || 20);
     } catch (err: any) {
       throw new BadRequestException(err.message);
     }
@@ -84,7 +87,7 @@ export class RuntimeController {
   @ApiOperation({ summary: 'Tek kayit getir' })
   async findOne(@Param('entity') entity: string, @Param('id') id: string) {
     try {
-      const result = await this.runtime.findOne(entity, id, 'default');
+      const result = await this.runtime.findOne(entity, id, DEFAULT_TENANT);
       if (!result) throw new NotFoundException(`${entity} ${id} bulunamadi`);
       return result;
     } catch (err: any) {
@@ -97,7 +100,7 @@ export class RuntimeController {
   @ApiOperation({ summary: 'Yeni kayit olustur' })
   async create(@Param('entity') entity: string, @Body() data: Record<string, any>) {
     try {
-      return await this.runtime.create(entity, data, 'default');
+      return await this.runtime.create(entity, data, DEFAULT_TENANT);
     } catch (err: any) {
       throw new BadRequestException(err.message);
     }
@@ -111,7 +114,7 @@ export class RuntimeController {
     @Body() data: Record<string, any>,
   ) {
     try {
-      return await this.runtime.update(entity, id, data, 'default');
+      return await this.runtime.update(entity, id, data, DEFAULT_TENANT);
     } catch (err: any) {
       throw new BadRequestException(err.message);
     }
@@ -121,7 +124,7 @@ export class RuntimeController {
   @ApiOperation({ summary: 'Kayit sil' })
   async remove(@Param('entity') entity: string, @Param('id') id: string) {
     try {
-      const deleted = await this.runtime.remove(entity, id, 'default');
+      const deleted = await this.runtime.remove(entity, id, DEFAULT_TENANT);
       if (!deleted) throw new NotFoundException(`${entity} ${id} bulunamadi`);
       return { deleted: true };
     } catch (err: any) {

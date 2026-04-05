@@ -65,10 +65,14 @@ function ProtectedLayout() {
 export function App() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
+  // Gelistirme modunda auth bypass (API olmadan sayfalari gormek icin)
+  const isDev = import.meta.env.DEV;
+  const showApp = isAuthenticated || isDev;
+
   return (
     <Routes>
-      <Route path="/login" element={isAuthenticated ? <Navigate to="/" /> : <LoginPage />} />
-      <Route path="/*" element={isAuthenticated ? <ProtectedLayout /> : <Navigate to="/login" />} />
+      <Route path="/login" element={showApp ? <Navigate to="/" /> : <LoginPage />} />
+      <Route path="/*" element={showApp ? <ProtectedLayout /> : <Navigate to="/login" />} />
     </Routes>
   );
 }

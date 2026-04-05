@@ -66,20 +66,28 @@ export class RuntimeService implements OnModuleInit {
 
   /** Modul dizinlerini bul (packages/module-*) */
   private findModulePaths(): string[] {
-    const packagesDir = path.resolve(process.cwd(), '..', '..', 'packages');
-    if (!fs.existsSync(packagesDir)) {
-      // Monorepo root'tan calisiyorsa
-      const altDir = path.resolve(process.cwd(), 'packages');
-      if (fs.existsSync(altDir)) {
-        return fs.readdirSync(altDir)
+    // Birden fazla olasi yol dene
+    const candidates = [
+      path.resolve(process.cwd(), 'packages'),           // monorepo root
+      path.resolve(process.cwd(), '..', '..', 'packages'), // apps/api icinden
+      path.resolve(process.cwd(), '..', 'packages'),      // apps/ icinden
+      path.resolve(__dirname, '..', '..', '..', '..', '..', 'packages'), // dist icinden
+    ];
+
+    for (const dir of candidates) {
+      if (fs.existsSync(dir)) {
+        const modules = fs.readdirSync(dir)
           .filter((d) => d.startsWith('module-'))
-          .map((d) => path.join(altDir, d));
+          .map((d) => path.join(dir, d));
+        if (modules.length > 0) {
+          this.logger.log(`Modul dizini bulundu: ${dir} (${modules.length} modul)`);
+          return modules;
+        }
       }
-      return [];
     }
-    return fs.readdirSync(packagesDir)
-      .filter((d) => d.startsWith('module-'))
-      .map((d) => path.join(packagesDir, d));
+
+    this.logger.warn('Modul dizini bulunamadi. Aranan yerler: ' + candidates.join(', '));
+    return [];
   }
 
   /** Bir modul dizinindeki tum FSL dosyalarini yukle */
