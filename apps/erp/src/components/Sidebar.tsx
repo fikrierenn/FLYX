@@ -7,14 +7,21 @@ import { useAuth } from '../stores/auth';
 
 const MENU = [
   { path: '/', label: 'Ana Sayfa', icon: LayoutDashboard },
-  { path: '/sales', label: 'Satis Siparisleri', icon: ShoppingCart },
+  { group: 'Satis' },
+  { path: '/sales', label: 'Siparisler', icon: ShoppingCart },
   { path: '/customers', label: 'Musteriler', icon: Users },
+  { group: 'Stok & Depo' },
   { path: '/products', label: 'Urunler', icon: Package },
-  { path: '/inventory', label: 'Stok', icon: Warehouse },
-  { path: '/purchases', label: 'Satinalma', icon: Truck },
-  { path: '/invoices', label: 'Faturalar', icon: FileText },
-  { path: '/finance', label: 'Finans', icon: DollarSign },
-];
+  { path: '/inventory', label: 'Stok Hareketleri', icon: Warehouse },
+  { path: '/warehouses', label: 'Depolar', icon: Warehouse },
+  { group: 'Satinalma' },
+  { path: '/purchases', label: 'Satinalma Siparisleri', icon: Truck },
+  { path: '/suppliers', label: 'Tedarikciler', icon: Users },
+  { group: 'Finans & IK' },
+  { path: '/invoices', label: 'Muhasebe Fisleri', icon: FileText },
+  { path: '/finance', label: 'Hesap Plani', icon: DollarSign },
+  { path: '/employees', label: 'Calisanlar', icon: Users },
+] as any[];
 
 export function Sidebar() {
   const location = useLocation();
@@ -30,14 +37,23 @@ export function Sidebar() {
       </div>
 
       {/* Menu */}
-      <nav className="flex-1 py-2 overflow-y-auto">
-        {MENU.map((item) => {
+      <nav className="flex-1 py-1 overflow-y-auto">
+        {MENU.map((item: any, idx: number) => {
+          // Grup basligi
+          if (item.group) {
+            return (
+              <div key={`g-${idx}`} className="px-4 pt-4 pb-1">
+                <span className="text-[10px] font-semibold text-slate-600 uppercase tracking-wider">{item.group}</span>
+              </div>
+            );
+          }
+
           const active = location.pathname === item.path;
           return (
             <button
               key={item.path}
               onClick={() => navigate(item.path)}
-              className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-all ${
+              className={`w-full flex items-center gap-3 px-4 py-2 text-sm transition-all ${
                 active
                   ? 'bg-blue-600/90 text-white rounded-r-lg ml-0 mr-2 shadow-lg shadow-blue-500/20'
                   : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'
