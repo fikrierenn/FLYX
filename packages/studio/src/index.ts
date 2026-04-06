@@ -12,3 +12,5 @@ export { GridRenderer } from './engine/GridRenderer';
 export { TotalsRenderer } from './engine/TotalsRenderer';
 export { ActionRenderer } from './engine/ActionRenderer';
 export { SchemaBuilder } from './engine/SchemaBuilder';
+export { FormCustomizer, loadCustomization, applyCustomization } from './designer/FormCustomizer';
+export type { FormCustomization } from './designer/FormCustomizer';

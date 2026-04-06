@@ -16,6 +16,8 @@ import { FieldRenderer } from './FieldRenderer';
 import { GridRenderer } from './GridRenderer';
 import { TotalsRenderer } from './TotalsRenderer';
 import { ActionRenderer } from './ActionRenderer';
+import { FormCustomizer, loadCustomization, applyCustomization } from '../designer/FormCustomizer';
+import type { FormCustomization } from '../designer/FormCustomizer';
 
 export interface FormSchema {
   /** Entity/Document adi */
@@ -108,6 +110,15 @@ export function FormEngine({ schema, apiBase, data, lines, onSave, onAction, onL
   const [formData, setFormData] = useState<Record<string, any>>(data || {});
   const [formLines, setFormLines] = useState<Record<string, any>[]>(lines || []);
   const [saving, setSaving] = useState(false);
+  const [showCustomizer, setShowCustomizer] = useState(false);
+  const [customization, setCustomization] = useState<FormCustomization | null>(
+    loadCustomization(schema.entityName),
+  );
+
+  // Customization uygulanmis fields/sections
+  const { fields: displayFields, sections: displaySections } = customization
+    ? applyCustomization(schema.fields, schema.sections || [], customization)
+    : { fields: schema.fields, sections: schema.sections };
 
   useEffect(() => {
     if (data) setFormData(data);
@@ -130,8 +141,9 @@ export function FormEngine({ schema, apiBase, data, lines, onSave, onAction, onL
     }
   };
 
-  // Section'lara gore alanlari grupla
-  const sections = schema.sections || [{ name: 'main', label: '', fields: schema.fields.map((f) => f.name), columns: 2 }];
+  // Section'lara gore alanlari grupla (customization uygulanmis)
+  const sections = displaySections || [{ name: 'main', label: '', fields: displayFields.map((f) => f.name), columns: 2 }];
+  const activeFields = displayFields;
 
   return (
     <div className="space-y-6">
@@ -144,6 +156,12 @@ export function FormEngine({ schema, apiBase, data, lines, onSave, onAction, onL
           )}
         </div>
         <div className="flex gap-2">
+          {/* 1C Benzeri: Ekrani Duzenle butonu */}
+          <button onClick={() => setShowCustomizer(true)}
+            className="px-3 py-2 text-xs text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+            title="Ekrani Duzenle (1C)">
+            ⚙ Duzenle
+          </button>
           {/* Durum gecis butonlari */}
           {schema.actions && (
             <ActionRenderer
@@ -165,7 +183,7 @@ export function FormEngine({ schema, apiBase, data, lines, onSave, onAction, onL
 
       {/* FORM ALANLARI (Section'lar) */}
       {sections.map((section) => {
-        const sectionFields = schema.fields.filter((f) => section.fields.includes(f.name));
+        const sectionFields = activeFields.filter((f) => section.fields.includes(f.name));
         if (sectionFields.length === 0) return null;
 
         return (
@@ -208,6 +226,17 @@ export function FormEngine({ schema, apiBase, data, lines, onSave, onAction, onL
           totals={schema.totals}
           lines={formLines}
           formData={formData}
+        />
+      )}
+
+      {/* 1C Benzeri Ekran Duzenleme Modal */}
+      {showCustomizer && (
+        <FormCustomizer
+          entityName={schema.entityName}
+          fields={schema.fields}
+          sections={schema.sections || []}
+          onSave={(c) => { setCustomization(c); setShowCustomizer(false); }}
+          onCancel={() => setShowCustomizer(false)}
         />
       )}
     </div>
