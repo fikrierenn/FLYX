@@ -1,0 +1,22 @@
+{
+  "name": "@flyx/studio",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "scripts": {
+    "build": "echo 'form-renderer is TSX - built by consuming app'",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@flyx/fsl-compiler": "*",
+    "@flyx/runtime-engine": "*",
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0",
+    "lucide-react": "^0.344.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "@types/react": "^18.2.0",
+    "vitest": "^1.6.0"
+  }
+}
