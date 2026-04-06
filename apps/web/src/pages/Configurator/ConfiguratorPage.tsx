@@ -1,738 +1,520 @@
 /**
- * FLYX Studio Configurator - 1C:Configurator Benzeri
- * =====================================================
- * SADECE GORUNUM - backend baglantisi yok.
- * Mutabik kaldiktan sonra calisir hale getirilecek.
+ * FLYX Studio Configurator
+ * ==========================
+ * Gercek API'den veri ceker - mock data YOK.
+ * /v1/configuration/tree → agac
+ * /v1/configuration/objects/:id → detay + FSL kodu
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Database, FileText, BarChart3, Settings, Layers,
   ChevronRight, ChevronDown, Plus, Search, Code,
-  Box, Receipt, BookOpen, Calculator, Users, Workflow,
-  ClipboardList, Globe, Shield,
+  Calculator, Users, Workflow, ClipboardList, Globe, Shield,
+  Save, Play, Bug, CheckCircle, Package, Trash2,
 } from 'lucide-react';
 
-// 1C Configuration agaci - mock data
-const TREE = [
-  {
-    id: 'subsystems', label: 'Moduller', icon: Layers, color: 'text-blue-500',
-    children: [
-      { id: 'mod-sales', label: 'Satis', type: 'subsystem' },
-      { id: 'mod-inventory', label: 'Stok & Depo', type: 'subsystem' },
-      { id: 'mod-procurement', label: 'Satinalma', type: 'subsystem' },
-      { id: 'mod-finance', label: 'Finans', type: 'subsystem' },
-      { id: 'mod-hr', label: 'Insan Kaynaklari', type: 'subsystem' },
-      { id: 'mod-crm', label: 'CRM', type: 'subsystem' },
-    ],
-  },
-  {
-    id: 'catalogs', label: 'Tanimlar (Catalogs)', icon: Database, color: 'text-emerald-500',
-    children: [
-      { id: 'cat-customer', label: 'Customer', type: 'entity', fields: 12 },
-      { id: 'cat-product', label: 'Product', type: 'entity', fields: 17 },
-      { id: 'cat-supplier', label: 'Supplier', type: 'entity', fields: 11 },
-      { id: 'cat-warehouse', label: 'Warehouse', type: 'entity', fields: 6 },
-      { id: 'cat-employee', label: 'Employee', type: 'entity', fields: 13 },
-      { id: 'cat-account', label: 'Account', type: 'entity', fields: 7 },
-      { id: 'cat-department', label: 'Department', type: 'entity', fields: 5 },
-      { id: 'cat-currency', label: 'Currency', type: 'entity', fields: 5 },
-    ],
-  },
-  {
-    id: 'documents', label: 'Belgeler (Documents)', icon: FileText, color: 'text-amber-500',
-    children: [
-      { id: 'doc-salesorder', label: 'SalesOrder', type: 'document', fields: 11 },
-      { id: 'doc-purchaseorder', label: 'PurchaseOrder', type: 'document', fields: 10 },
-      { id: 'doc-stockmovement', label: 'StockMovement', type: 'document', fields: 9 },
-      { id: 'doc-journalentry', label: 'JournalEntry', type: 'document', fields: 8 },
-      { id: 'doc-goodsreceipt', label: 'GoodsReceipt', type: 'document', fields: 6 },
-    ],
-  },
-  {
-    id: 'registers', label: 'Registerler', icon: Calculator, color: 'text-violet-500',
-    children: [
-      {
-        id: 'reg-accum', label: 'Birikim Registerleri', icon: BarChart3,
-        children: [
-          { id: 'reg-stockbalance', label: 'StockBalance', type: 'register', dims: 'product, warehouse' },
-          { id: 'reg-stocklevel', label: 'StockLevel', type: 'register', dims: 'product, warehouse' },
-        ],
-      },
-      {
-        id: 'reg-info', label: 'Bilgi Registerleri', icon: BookOpen,
-        children: [
-          { id: 'reg-exchangerate', label: 'ExchangeRates', type: 'info_register' },
-          { id: 'reg-pricelist', label: 'PriceList', type: 'info_register' },
-        ],
-      },
-    ],
-  },
-  {
-    id: 'reports', label: 'Raporlar', icon: BarChart3, color: 'text-rose-500',
-    children: [
-      { id: 'rpt-sales', label: 'SalesReport', type: 'report' },
-      { id: 'rpt-stock', label: 'StockReport', type: 'report' },
-      { id: 'rpt-financial', label: 'FinancialReport', type: 'report' },
-    ],
-  },
-  {
-    id: 'forms', label: 'Formlar', icon: ClipboardList, color: 'text-cyan-500',
-    children: [
-      { id: 'frm-customer', label: 'CustomerForm', type: 'form' },
-      { id: 'frm-salesorder', label: 'SalesOrderForm', type: 'form' },
-      { id: 'frm-product', label: 'ProductForm', type: 'form' },
-      { id: 'frm-stockmovement', label: 'StockMovementForm', type: 'form' },
-    ],
-  },
-  {
-    id: 'workflows', label: 'Is Akislari', icon: Workflow, color: 'text-orange-500',
-    children: [
-      { id: 'wf-approval', label: 'InvoiceApproval', type: 'workflow' },
-      { id: 'wf-order', label: 'OrderProcess', type: 'workflow' },
-    ],
-  },
+const API_BASE = '/v1/configuration';
+
+// Nesne tipi → Turkce etiket + ikon + renk
+const TYPE_CONFIG: Record<string, { label: string; icon: any; color: string }> = {
+  entity: { label: 'Tanimlar (Catalogs)', icon: Database, color: 'text-emerald-500' },
+  document: { label: 'Belgeler (Documents)', icon: FileText, color: 'text-amber-500' },
+  register: { label: 'Registerler', icon: Calculator, color: 'text-violet-500' },
+  form: { label: 'Formlar', icon: ClipboardList, color: 'text-cyan-500' },
+  report: { label: 'Raporlar', icon: BarChart3, color: 'text-rose-500' },
+  workflow: { label: 'Is Akislari', icon: Workflow, color: 'text-orange-500' },
+};
+
+// Statik menuler (API'den gelmeyen)
+const STATIC_SECTIONS = [
   {
     id: 'api', label: 'API Yonetimi', icon: Globe, color: 'text-indigo-500',
     children: [
-      { id: 'api-endpoints', label: 'Endpoint Listesi', type: 'api' },
-      { id: 'api-keys', label: 'API Anahtarlari', type: 'api' },
-      { id: 'api-webhooks', label: 'Webhook Tanimlari', type: 'api' },
-      { id: 'api-docs', label: 'API Dokumantasyonu', type: 'api' },
+      { id: 'api-endpoints', label: 'Endpoint Listesi' },
+      { id: 'api-keys', label: 'API Anahtarlari' },
+      { id: 'api-webhooks', label: 'Webhook Tanimlari' },
     ],
   },
   {
     id: 'jobs', label: 'Zamanlanmis Gorevler', icon: ClipboardList, color: 'text-teal-500',
-    children: [
-      { id: 'job-backup', label: 'DatabaseBackup', type: 'scheduled_job' },
-      { id: 'job-exchange', label: 'ExchangeRateSync', type: 'scheduled_job' },
-      { id: 'job-report', label: 'DailyReportMail', type: 'scheduled_job' },
-      { id: 'job-cleanup', label: 'AuditLogCleanup', type: 'scheduled_job' },
-    ],
+    children: [],
   },
   {
     id: 'integrations', label: 'Dis Entegrasyon', icon: Globe, color: 'text-pink-500',
     children: [
-      { id: 'int-efatura', label: 'e-Fatura (GIB)', type: 'integration' },
-      { id: 'int-earsiv', label: 'e-Arsiv', type: 'integration' },
-      { id: 'int-bank', label: 'Banka Entegrasyonu', type: 'integration' },
-      { id: 'int-ecommerce', label: 'E-Ticaret', type: 'integration' },
+      { id: 'int-efatura', label: 'e-Fatura (GIB)' },
+      { id: 'int-bank', label: 'Banka Entegrasyonu' },
     ],
   },
   {
     id: 'settings', label: 'Sistem Ayarlari', icon: Settings, color: 'text-gray-500',
     children: [
-      { id: 'set-company', label: 'Firma Bilgileri', type: 'constant' },
-      { id: 'set-numbering', label: 'Belge Numaralama', type: 'constant' },
-      { id: 'set-defaults', label: 'Varsayilan Degerler', type: 'constant' },
-      { id: 'set-mail', label: 'E-posta Ayarlari', type: 'constant' },
+      { id: 'set-company', label: 'Firma Bilgileri' },
+      { id: 'set-numbering', label: 'Belge Numaralama' },
     ],
   },
   {
     id: 'security', label: 'Guvenlik', icon: Shield, color: 'text-red-500',
     children: [
-      { id: 'sec-roles', label: 'Roller', type: 'roles' },
-      { id: 'sec-permissions', label: 'Yetkiler', type: 'permissions' },
+      { id: 'sec-roles', label: 'Roller' },
+      { id: 'sec-permissions', label: 'Yetkiler' },
     ],
   },
 ];
 
-// Mock ozellik paneli verileri
-const MOCK_PROPERTIES: Record<string, any> = {
-  'cat-customer': {
-    title: 'Customer', type: 'Entity (Catalog)',
-    props: [
-      { label: 'Ad', value: 'Customer' },
-      { label: 'Tablo Adi', value: 'customer' },
-      { label: 'Alan Sayisi', value: '12' },
-      { label: 'Modul', value: 'Satis' },
-      { label: 'Durum', value: 'Aktif' },
-    ],
-    tabs: ['Genel', 'Alanlar', 'Metodlar', 'Olaylar', 'Formlar', 'Komutlar', 'Haklar'],
-    methods: [
-      { name: 'get_display_name', params: '', returns: 'String', code: 'return this.code + " - " + this.name;' },
-      { name: 'get_balance', params: '', returns: 'Decimal', code: 'return query("SELECT SUM(total) FROM sales_order WHERE customer = {this.id}");' },
-    ],
-    events: [
-      { name: 'before_create', label: 'Olusturma Oncesi', hasCode: false },
-      { name: 'after_create', label: 'Olusturma Sonrasi', hasCode: true, code: 'send_email({ to: this.email, template: "welcome" });' },
-      { name: 'before_update', label: 'Guncelleme Oncesi', hasCode: false },
-      { name: 'after_update', label: 'Guncelleme Sonrasi', hasCode: false },
-      { name: 'before_delete', label: 'Silme Oncesi', hasCode: false },
-      { name: 'on_open', label: 'Form Acildiginda', hasCode: false },
-      { name: 'validate', label: 'Dogrulama', hasCode: false },
-    ],
-    fields: [
-      { name: 'code', type: 'String(50)', req: true, uniq: true },
-      { name: 'name', type: 'String(200)', req: true, uniq: false },
-      { name: 'email', type: 'Email', req: false, uniq: true },
-      { name: 'phone', type: 'Phone', req: false, uniq: false },
-      { name: 'status', type: 'Enum', req: false, uniq: false },
-      { name: 'credit_limit', type: 'Decimal(15,2)', req: false, uniq: false },
-    ],
-  },
-  'doc-salesorder': {
-    title: 'SalesOrder', type: 'Document',
-    props: [
-      { label: 'Ad', value: 'SalesOrder' },
-      { label: 'Numaralama', value: 'SIP-{YYYY}-{SEQ:4}' },
-      { label: 'Alan Sayisi', value: '11' },
-      { label: 'Kalem Entity', value: 'SalesOrderItem' },
-      { label: 'Durum Akisi', value: 'draft → confirmed → shipped' },
-      { label: 'Modul', value: 'Satis' },
-    ],
-    tabs: ['Genel', 'Alanlar', 'Kalemler', 'Metodlar', 'Olaylar', 'Formlar', 'Komutlar', 'Haklar'],
-    methods: [
-      { name: 'can_confirm', params: '', returns: 'Boolean', code: 'if (this.status != "draft") { return false; }\nif (this.total == 0) { return false; }\nreturn true;' },
-      { name: 'can_ship', params: '', returns: 'Boolean', code: 'if (this.status != "confirmed") { return false; }\nreturn true;' },
-      { name: 'can_cancel', params: '', returns: 'Boolean', code: 'if (this.status == "shipped") { return false; }\nreturn true;' },
-      { name: 'recalculate_totals', params: '', returns: 'void', code: '// Satirlardan toplam hesapla' },
-    ],
-    lineFields: [
-      { name: 'product', type: 'Relation(Product)', req: true },
-      { name: 'quantity', type: 'Decimal(10,3)', req: true },
-      { name: 'unit_price', type: 'Decimal(15,2)', req: true },
-      { name: 'discount_rate', type: 'Decimal(5,2)', req: false },
-      { name: 'tax_rate', type: 'Decimal(5,2)', req: false },
-      { name: 'line_total', type: 'Decimal(15,2)', req: false },
-      { name: 'tax_amount', type: 'Decimal(15,2)', req: false },
-      { name: 'net_total', type: 'Decimal(15,2)', req: false },
-    ],
-    events: [
-      { name: 'before_create', label: 'Olusturma Oncesi', hasCode: true, code: 'this.status = "draft";' },
-      { name: 'after_create', label: 'Olusturma Sonrasi', hasCode: false },
-      { name: 'before_update', label: 'Guncelleme Oncesi', hasCode: false },
-      { name: 'after_update', label: 'Guncelleme Sonrasi', hasCode: false },
-      { name: 'on_post', label: 'Kayit Etme (Posting)', hasCode: true, code: '// Stok dusumu + muhasebe fisi olustur' },
-      { name: 'on_unpost', label: 'Kayit Geri Alma', hasCode: false },
-      { name: 'validate', label: 'Dogrulama', hasCode: true, code: 'if (this.total == 0) { return false; }' },
-      { name: 'on_status_change', label: 'Durum Degisimi', hasCode: true, code: '// draft → confirmed → shipped' },
-    ],
-    fields: [
-      { name: 'order_no', type: 'String(20)', req: true, uniq: true },
-      { name: 'customer', type: 'Relation(Customer)', req: true, uniq: false },
-      { name: 'order_date', type: 'Date', req: true, uniq: false },
-      { name: 'total', type: 'Decimal(15,2)', req: false, uniq: false },
-      { name: 'status', type: 'Enum', req: false, uniq: false },
-    ],
-  },
-  'reg-stockbalance': {
-    title: 'StockBalance', type: 'Register (Accumulation)',
-    props: [
-      { label: 'Ad', value: 'StockBalance' },
-      { label: 'Register Tipi', value: 'Birikim (Balances)' },
-      { label: 'Boyutlar', value: 'product, warehouse' },
-      { label: 'Kaynaklar', value: 'quantity' },
-      { label: 'Alan Sayisi', value: '7' },
-    ],
-    tabs: ['Genel', 'Boyutlar', 'Kaynaklar', 'Alanlar', 'Formlar'],
-    fields: [
-      { name: 'product', type: 'Relation(Product)', req: true, uniq: false },
-      { name: 'warehouse', type: 'Relation(Warehouse)', req: true, uniq: false },
-      { name: 'quantity', type: 'Decimal(10,3)', req: false, uniq: false },
-      { name: 'available_quantity', type: 'Decimal(10,3)', req: false, uniq: false },
-    ],
-  },
-  'api-endpoints': {
-    title: 'API Endpoint Listesi', type: 'API Yonetimi',
-    props: [
-      { label: 'Toplam Endpoint', value: '24' },
-      { label: 'Aktif', value: '24' },
-      { label: 'Versiyon', value: 'v1' },
-      { label: 'Base URL', value: '/v1/data/:entity' },
-      { label: 'Kimlik Dogrulama', value: 'JWT Bearer Token' },
-      { label: 'Rate Limit', value: '100 istek / 60 sn' },
-    ],
-    tabs: ['Genel', 'Endpoint Listesi', 'Ayarlar'],
-  },
-  'api-keys': {
-    title: 'API Anahtarlari', type: 'API Yonetimi',
-    props: [
-      { label: 'Aktif Anahtar', value: '0' },
-      { label: 'Maksimum', value: '10' },
-      { label: 'Son Olusturma', value: '-' },
-    ],
-    tabs: ['Genel', 'Anahtarlar'],
-  },
-  'job-backup': {
-    title: 'DatabaseBackup', type: 'Zamanlanmis Gorev',
-    props: [
-      { label: 'Ad', value: 'DatabaseBackup' },
-      { label: 'Aciklama', value: 'Gunluk veritabani yedekleme' },
-      { label: 'Zamanlama', value: '0 2 * * * (Her gun 02:00)' },
-      { label: 'Son Calisma', value: '-' },
-      { label: 'Durum', value: 'Aktif' },
-    ],
-    tabs: ['Genel', 'Zamanlama', 'Gecmis'],
-  },
-  'int-efatura': {
-    title: 'e-Fatura (GIB)', type: 'Dis Entegrasyon',
-    props: [
-      { label: 'Entegrator', value: 'Foriba / QNB e-Fatura' },
-      { label: 'Baglanti', value: 'Yapilandirilmadi' },
-      { label: 'Mod', value: 'Test' },
-      { label: 'Desteklenen', value: 'e-Fatura, e-Arsiv, e-Irsaliye' },
-    ],
-    tabs: ['Genel', 'Baglanti', 'Sablonlar', 'Gecmis'],
-  },
-  'set-company': {
-    title: 'Firma Bilgileri', type: 'Sistem Ayari',
-    props: [
-      { label: 'Firma Adi', value: 'FLYX Demo Sirketi' },
-      { label: 'Vergi No', value: '1234567890' },
-      { label: 'Vergi Dairesi', value: 'Kadikoy' },
-      { label: 'Adres', value: 'Istanbul, Turkiye' },
-      { label: 'Telefon', value: '+90 212 555 0000' },
-      { label: 'E-posta', value: 'info@flyxdemo.com' },
-      { label: 'Web', value: 'www.flyxdemo.com' },
-    ],
-    tabs: ['Genel'],
-  },
-};
+interface ConfigObject {
+  id: string;
+  object_type: string;
+  name: string;
+  module: string;
+  fsl_code: string;
+  compiled_ast: any;
+  metadata: any;
+  version: number;
+}
 
 export function ConfiguratorPage() {
-  const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set(['catalogs', 'documents']));
-  const [selectedNode, setSelectedNode] = useState<string | null>('cat-customer');
+  const [tree, setTree] = useState<Record<string, ConfigObject[]>>({});
+  const [loading, setLoading] = useState(true);
+  const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set(['entity', 'document']));
+  const [selectedObject, setSelectedObject] = useState<ConfigObject | null>(null);
   const [activeTab, setActiveTab] = useState('Genel');
   const [searchQuery, setSearchQuery] = useState('');
+  const [fslCode, setFslCode] = useState('');
+  const [saving, setSaving] = useState(false);
 
-  const toggleNode = (id: string) => {
-    setExpandedNodes((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
-      return next;
-    });
+  // API'den agac yukle
+  useEffect(() => {
+    fetch(`${API_BASE}/tree`)
+      .then((r) => r.json())
+      .then((data) => { setTree(data); setLoading(false); })
+      .catch(() => setLoading(false));
+  }, []);
+
+  // Nesne sec
+  const selectObject = (obj: ConfigObject) => {
+    setSelectedObject(obj);
+    setFslCode(obj.fsl_code);
+    setActiveTab('Genel');
   };
 
-  const selectedProps = selectedNode ? MOCK_PROPERTIES[selectedNode] : null;
+  // FSL kaydet
+  const saveFSL = async () => {
+    if (!selectedObject) return;
+    setSaving(true);
+    try {
+      const res = await fetch(`${API_BASE}/objects/${selectedObject.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fsl_code: fslCode }),
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        setSelectedObject(updated);
+        // Agaci yenile
+        const treeRes = await fetch(`${API_BASE}/tree`);
+        setTree(await treeRes.json());
+      }
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Nesne sil
+  const deleteObject = async () => {
+    if (!selectedObject || !confirm(`"${selectedObject.name}" nesnesini silmek istediginize emin misiniz?`)) return;
+    await fetch(`${API_BASE}/objects/${selectedObject.id}`, { method: 'DELETE' });
+    setSelectedObject(null);
+    const treeRes = await fetch(`${API_BASE}/tree`);
+    setTree(await treeRes.json());
+  };
+
+  // AST'den alan, metod, event bilgisi cikart
+  const ast = selectedObject?.compiled_ast;
+  const fields = ast?.fields || [];
+  const methods = ast?.methods || [];
+  const events = ast?.triggers?.triggers || [];
+  const permissions = ast?.permissions;
+  const metadata = selectedObject?.metadata || {};
+
+  // Tab listesi (nesne tipine gore)
+  const tabs = ['Genel', 'Alanlar'];
+  if (methods.length > 0 || ['entity', 'document'].includes(selectedObject?.object_type || '')) tabs.push('Metodlar');
+  tabs.push('Olaylar');
+  if (selectedObject?.object_type === 'document') tabs.push('Kalemler');
+  tabs.push('FSL Kodu', 'Haklar');
+
+  // Arama filtresi
+  const filterObjects = (objects: ConfigObject[]) => {
+    if (!searchQuery) return objects;
+    return objects.filter((o) => o.name.toLowerCase().includes(searchQuery.toLowerCase()));
+  };
+
+  const totalObjects = Object.values(tree).reduce((sum, arr) => sum + arr.length, 0);
 
   return (
     <div className="flex flex-col h-[calc(100vh-56px)]">
       {/* TOOLBAR */}
       <div className="h-9 bg-white border-b border-gray-200 flex items-center px-3 gap-1.5 flex-shrink-0">
-        <button className="px-2.5 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 font-medium">💾 Kaydet</button>
+        <button onClick={saveFSL} disabled={saving || !selectedObject}
+          className="px-2.5 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-40 font-medium flex items-center gap-1">
+          <Save className="w-3 h-3" /> {saving ? 'Kaydediliyor...' : 'Kaydet'}
+        </button>
         <button className="px-2.5 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200">↺ Geri Al</button>
         <div className="w-px h-4 bg-gray-300 mx-1" />
-        <button className="px-2.5 py-1 text-xs bg-emerald-600 text-white rounded hover:bg-emerald-700">▶ Calistir</button>
-        <button className="px-2.5 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200">🐛 Debug</button>
+        <button className="px-2.5 py-1 text-xs bg-emerald-600 text-white rounded hover:bg-emerald-700 flex items-center gap-1">
+          <Play className="w-3 h-3" /> Calistir
+        </button>
+        <button className="px-2.5 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200 flex items-center gap-1">
+          <Bug className="w-3 h-3" /> Debug
+        </button>
         <div className="w-px h-4 bg-gray-300 mx-1" />
-        <button className="px-2.5 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200">📋 Dogrula</button>
-        <button className="px-2.5 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200">📦 Yayinla</button>
+        <button className="px-2.5 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200 flex items-center gap-1">
+          <CheckCircle className="w-3 h-3" /> Dogrula
+        </button>
+        <button className="px-2.5 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200 flex items-center gap-1">
+          <Package className="w-3 h-3" /> Yayinla
+        </button>
+        {selectedObject && (
+          <>
+            <div className="w-px h-4 bg-gray-300 mx-1" />
+            <button onClick={deleteObject}
+              className="px-2.5 py-1 text-xs bg-red-50 text-red-600 rounded hover:bg-red-100 flex items-center gap-1">
+              <Trash2 className="w-3 h-3" /> Sil
+            </button>
+          </>
+        )}
         <div className="flex-1" />
-        <span className="text-[10px] text-gray-400">FLYX Studio v0.1.0</span>
+        <span className="text-[10px] text-gray-400">FLYX Studio v0.1.0 | {totalObjects} nesne</span>
       </div>
 
       <div className="flex flex-1 overflow-hidden bg-gray-100">
-      {/* SOL: Configuration Agaci */}
-      <div className="w-72 bg-white border-r border-gray-200 flex flex-col">
-        {/* Baslik */}
-        <div className="px-3 py-2 border-b border-gray-200 bg-gray-50">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-xs font-bold text-gray-700 uppercase tracking-wider">Configuration</h2>
-            <div className="flex gap-1">
+        {/* SOL: Configuration Agaci */}
+        <div className="w-72 bg-white border-r border-gray-200 flex flex-col">
+          <div className="px-3 py-2 border-b border-gray-200 bg-gray-50">
+            <div className="flex items-center justify-between mb-2">
+              <h2 className="text-xs font-bold text-gray-700 uppercase tracking-wider">Configuration</h2>
               <button className="p-1 rounded hover:bg-gray-200 text-gray-500" title="Yeni Nesne">
                 <Plus className="w-3.5 h-3.5" />
               </button>
             </div>
+            <div className="relative">
+              <Search className="w-3.5 h-3.5 absolute left-2 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Nesne ara..." className="w-full pl-7 pr-2 py-1.5 text-xs border border-gray-200 rounded bg-white focus:ring-1 focus:ring-blue-500 outline-none" />
+            </div>
           </div>
-          <div className="relative">
-            <Search className="w-3.5 h-3.5 absolute left-2 top-1/2 -translate-y-1/2 text-gray-400" />
-            <input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Nesne ara..."
-              className="w-full pl-7 pr-2 py-1.5 text-xs border border-gray-200 rounded bg-white focus:ring-1 focus:ring-blue-500 outline-none" />
+
+          <div className="flex-1 overflow-y-auto py-1">
+            {loading ? (
+              <div className="p-4 text-xs text-gray-400 text-center">Yukleniyor...</div>
+            ) : (
+              <>
+                {/* DB'den gelen nesne tipleri */}
+                {Object.entries(TYPE_CONFIG).map(([type, config]) => {
+                  const objects = filterObjects(tree[type] || []);
+                  if (objects.length === 0 && searchQuery) return null;
+                  const Icon = config.icon;
+                  const isExpanded = expandedNodes.has(type);
+
+                  return (
+                    <div key={type}>
+                      <button onClick={() => toggleNode(type)}
+                        className="w-full flex items-center gap-1.5 px-2 py-1.5 text-xs hover:bg-gray-100">
+                        {isExpanded ? <ChevronDown className="w-3 h-3 text-gray-400" /> : <ChevronRight className="w-3 h-3 text-gray-400" />}
+                        <Icon className={`w-3.5 h-3.5 ${config.color}`} />
+                        <span className="font-semibold text-gray-700">{config.label}</span>
+                        <span className="ml-auto text-[10px] text-gray-400">{objects.length}</span>
+                      </button>
+                      {isExpanded && (
+                        <div className="ml-5">
+                          {objects.map((obj) => (
+                            <button key={obj.id} onClick={() => selectObject(obj)}
+                              className={`w-full flex items-center gap-1.5 px-3 py-1 text-xs rounded-md transition-colors ${
+                                selectedObject?.id === obj.id ? 'bg-blue-100 text-blue-700 font-medium' : 'text-gray-600 hover:bg-gray-100'
+                              }`}>
+                              <span className="text-gray-400">•</span>
+                              {obj.name}
+                              <span className="ml-auto text-[10px] text-gray-400">{obj.metadata?.fieldCount || ''}</span>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+
+                {/* Statik menuler */}
+                {STATIC_SECTIONS.map((section) => {
+                  const Icon = section.icon;
+                  const isExpanded = expandedNodes.has(section.id);
+                  return (
+                    <div key={section.id}>
+                      <button onClick={() => toggleNode(section.id)}
+                        className="w-full flex items-center gap-1.5 px-2 py-1.5 text-xs hover:bg-gray-100">
+                        {isExpanded ? <ChevronDown className="w-3 h-3 text-gray-400" /> : <ChevronRight className="w-3 h-3 text-gray-400" />}
+                        <Icon className={`w-3.5 h-3.5 ${section.color}`} />
+                        <span className="font-semibold text-gray-700">{section.label}</span>
+                        <span className="ml-auto text-[10px] text-gray-400">{section.children.length}</span>
+                      </button>
+                      {isExpanded && (
+                        <div className="ml-5">
+                          {section.children.map((child) => (
+                            <button key={child.id}
+                              className="w-full flex items-center gap-1.5 px-3 py-1 text-xs text-gray-600 hover:bg-gray-100 rounded-md">
+                              <span className="text-gray-400">•</span>
+                              {child.label}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </>
+            )}
           </div>
         </div>
 
-        {/* Agac */}
-        <div className="flex-1 overflow-y-auto py-1">
-          {TREE.map((group) => (
-            <TreeGroup
-              key={group.id}
-              group={group}
-              expanded={expandedNodes}
-              selected={selectedNode}
-              onToggle={toggleNode}
-              onSelect={setSelectedNode}
-            />
-          ))}
+        {/* SAG: Ozellik Paneli */}
+        <div className="flex-1 flex flex-col">
+          {selectedObject ? (
+            <>
+              {/* Baslik */}
+              <div className="bg-white border-b border-gray-200 px-6 py-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
+                    {React.createElement(TYPE_CONFIG[selectedObject.object_type]?.icon || Database, {
+                      className: `w-5 h-5 ${TYPE_CONFIG[selectedObject.object_type]?.color || 'text-gray-500'}`,
+                    })}
+                  </div>
+                  <div>
+                    <h1 className="text-xl font-bold text-gray-800">{selectedObject.name}</h1>
+                    <p className="text-xs text-gray-500">
+                      {TYPE_CONFIG[selectedObject.object_type]?.label || selectedObject.object_type}
+                      {selectedObject.module && ` · ${selectedObject.module}`}
+                      {` · v${selectedObject.version}`}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Tab'lar */}
+              <div className="bg-white border-b border-gray-200 px-6">
+                <div className="flex gap-0">
+                  {tabs.map((tab) => (
+                    <button key={tab} onClick={() => setActiveTab(tab)}
+                      className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+                        activeTab === tab ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'
+                      }`}>
+                      {tab}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Icerik */}
+              <div className="flex-1 overflow-auto p-6">
+                {/* GENEL */}
+                {activeTab === 'Genel' && (
+                  <div className="bg-white rounded-xl shadow-sm p-6 max-w-2xl">
+                    <h3 className="text-sm font-semibold text-gray-700 mb-4">Genel Ozellikler</h3>
+                    <table className="w-full">
+                      <tbody>
+                        {[
+                          ['Ad', selectedObject.name],
+                          ['Tip', selectedObject.object_type],
+                          ['Modul', selectedObject.module || '-'],
+                          ['Versiyon', `v${selectedObject.version}`],
+                          ['Alan Sayisi', metadata.fieldCount || 0],
+                          ['Metodlar', metadata.hasMethods ? 'Var' : 'Yok'],
+                          ['Trigger', metadata.hasTriggers ? 'Var' : 'Yok'],
+                          ['Yetkiler', metadata.hasPermissions ? 'Tanimli' : 'Tanimsiz'],
+                        ].map(([label, value]) => (
+                          <tr key={label as string} className="border-b border-gray-100">
+                            <td className="py-2.5 pr-4 text-sm text-gray-500 w-40">{label}</td>
+                            <td className="py-2.5 text-sm text-gray-800 font-medium">{String(value)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+
+                {/* ALANLAR */}
+                {activeTab === 'Alanlar' && (
+                  <div className="bg-white rounded-xl shadow-sm overflow-hidden max-w-3xl">
+                    <div className="px-6 py-3 bg-gray-50 border-b border-gray-100 flex justify-between items-center">
+                      <h3 className="text-sm font-semibold text-gray-700">Alanlar ({fields.length})</h3>
+                    </div>
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b border-gray-100">
+                          <th className="px-4 py-2 text-left text-xs text-gray-500 w-8">#</th>
+                          <th className="px-4 py-2 text-left text-xs text-gray-500">Alan Adi</th>
+                          <th className="px-4 py-2 text-left text-xs text-gray-500">Veri Tipi</th>
+                          <th className="px-4 py-2 text-center text-xs text-gray-500 w-16">Zorunlu</th>
+                          <th className="px-4 py-2 text-center text-xs text-gray-500 w-16">Benzersiz</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {fields.map((f: any, i: number) => (
+                          <tr key={f.name} className="border-b border-gray-50 hover:bg-blue-50/30">
+                            <td className="px-4 py-2 text-gray-400">{i + 1}</td>
+                            <td className="px-4 py-2 font-medium text-gray-700">{f.name}</td>
+                            <td className="px-4 py-2">
+                              <span className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-xs font-mono">
+                                {f.dataType?.name}{f.dataType?.params ? `(${f.dataType.params.join(',')})` : ''}
+                              </span>
+                            </td>
+                            <td className="px-4 py-2 text-center">{f.constraints?.required ? '✓' : ''}</td>
+                            <td className="px-4 py-2 text-center">{f.constraints?.unique ? '✓' : ''}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+
+                {/* METODLAR */}
+                {activeTab === 'Metodlar' && (
+                  <div className="bg-white rounded-xl shadow-sm overflow-hidden max-w-3xl">
+                    <div className="px-6 py-3 bg-gray-50 border-b border-gray-100">
+                      <h3 className="text-sm font-semibold text-gray-700">Metodlar ({methods.length})</h3>
+                    </div>
+                    {methods.length === 0 ? (
+                      <div className="p-6 text-sm text-gray-400 text-center">Metod tanimlanmamis</div>
+                    ) : (
+                      <div className="divide-y divide-gray-100">
+                        {methods.map((m: any) => (
+                          <div key={m.name} className="px-6 py-3">
+                            <div className="flex items-center gap-2 mb-1.5">
+                              <Code className="w-3.5 h-3.5 text-blue-500" />
+                              <span className="text-sm font-medium text-gray-700 font-mono">{m.name}()</span>
+                            </div>
+                            {m.body && m.body.length > 0 && (
+                              <pre className="px-3 py-2 bg-gray-900 rounded-lg text-xs font-mono text-green-400 overflow-x-auto">
+                                {`// ${m.body.length} statement`}
+                              </pre>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* OLAYLAR */}
+                {activeTab === 'Olaylar' && (
+                  <div className="bg-white rounded-xl shadow-sm overflow-hidden max-w-3xl">
+                    <div className="px-6 py-3 bg-gray-50 border-b border-gray-100">
+                      <h3 className="text-sm font-semibold text-gray-700">Olaylar (Triggers)</h3>
+                    </div>
+                    {events.length === 0 ? (
+                      <div className="p-6 text-sm text-gray-400 text-center">Trigger tanimlanmamis</div>
+                    ) : (
+                      <div className="divide-y divide-gray-100">
+                        {events.map((ev: any) => (
+                          <div key={ev.event} className="px-6 py-3">
+                            <div className="flex items-center gap-2">
+                              <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                              <span className="text-sm font-medium text-gray-700">{ev.event}</span>
+                              <span className="text-[10px] text-gray-400">{ev.body?.length || 0} statement</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* FSL KODU (duzenlenebilir) */}
+                {activeTab === 'FSL Kodu' && (
+                  <div className="bg-gray-900 rounded-xl shadow-sm overflow-hidden max-w-4xl">
+                    <div className="flex items-center justify-between px-4 py-2 border-b border-gray-800">
+                      <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">FSL Kaynak Kodu</span>
+                      <button onClick={saveFSL} disabled={saving}
+                        className="text-xs text-blue-400 hover:text-blue-300 disabled:opacity-50">
+                        {saving ? 'Kaydediliyor...' : 'Kaydet'}
+                      </button>
+                    </div>
+                    <textarea
+                      value={fslCode}
+                      onChange={(e) => setFslCode(e.target.value)}
+                      className="w-full h-[400px] p-4 bg-gray-900 text-green-400 font-mono text-sm resize-none outline-none"
+                      spellCheck={false}
+                    />
+                  </div>
+                )}
+
+                {/* HAKLAR */}
+                {activeTab === 'Haklar' && (
+                  <div className="bg-white rounded-xl shadow-sm p-6 max-w-2xl">
+                    <h3 className="text-sm font-semibold text-gray-700 mb-4">Erisim Haklari</h3>
+                    {permissions ? (
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b">
+                            <th className="py-2 text-left text-xs text-gray-500">Islem</th>
+                            <th className="py-2 text-left text-xs text-gray-500">Roller</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {permissions.create && <tr className="border-b border-gray-50"><td className="py-2">Olusturma</td><td className="py-2">{permissions.create.join(', ')}</td></tr>}
+                          {permissions.read && <tr className="border-b border-gray-50"><td className="py-2">Okuma</td><td className="py-2">{permissions.read.join(', ')}</td></tr>}
+                          {permissions.update && <tr className="border-b border-gray-50"><td className="py-2">Guncelleme</td><td className="py-2">{permissions.update.join(', ')}</td></tr>}
+                          {permissions.delete && <tr className="border-b border-gray-50"><td className="py-2">Silme</td><td className="py-2">{permissions.delete.join(', ')}</td></tr>}
+                        </tbody>
+                      </table>
+                    ) : (
+                      <p className="text-sm text-gray-400">Yetki tanimlanmamis</p>
+                    )}
+                  </div>
+                )}
+
+                {/* KALEMLER */}
+                {activeTab === 'Kalemler' && (
+                  <div className="bg-white rounded-xl shadow-sm p-6 max-w-2xl">
+                    <h3 className="text-sm font-semibold text-gray-700 mb-2">Kalem Alanlari</h3>
+                    <p className="text-xs text-gray-400">Document'in lines_entity bilgisi: {ast?.linesEntity || 'Tanimlanmamis'}</p>
+                  </div>
+                )}
+              </div>
+            </>
+          ) : (
+            <div className="flex-1 flex items-center justify-center text-gray-400">
+              <div className="text-center">
+                <Settings className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                <p className="font-medium">FLYX Studio Configurator</p>
+                <p className="text-sm mt-1">Sol panelden bir nesne secin</p>
+                <p className="text-xs mt-3 text-gray-400">{totalObjects} nesne yuklendi (DB)</p>
+              </div>
+            </div>
+          )}
         </div>
-      </div>
-
-      {/* SAG: Ozellik Paneli */}
-      <div className="flex-1 flex flex-col">
-        {selectedProps ? (
-          <>
-            {/* Baslik */}
-            <div className="bg-white border-b border-gray-200 px-6 py-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
-                  {selectedProps.type.includes('Document') ? <FileText className="w-5 h-5 text-amber-600" /> :
-                   selectedProps.type.includes('Register') ? <Calculator className="w-5 h-5 text-violet-600" /> :
-                   <Database className="w-5 h-5 text-emerald-600" />}
-                </div>
-                <div>
-                  <h1 className="text-xl font-bold text-gray-800">{selectedProps.title}</h1>
-                  <p className="text-xs text-gray-500">{selectedProps.type}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Tab'lar */}
-            <div className="bg-white border-b border-gray-200 px-6">
-              <div className="flex gap-0">
-                {selectedProps.tabs?.map((tab: string) => (
-                  <button key={tab} onClick={() => setActiveTab(tab)}
-                    className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
-                      activeTab === tab
-                        ? 'border-blue-600 text-blue-600'
-                        : 'border-transparent text-gray-500 hover:text-gray-700'
-                    }`}>
-                    {tab}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Icerik */}
-            <div className="flex-1 overflow-auto p-6">
-              {activeTab === 'Genel' && (
-                <div className="bg-white rounded-xl shadow-sm p-6 max-w-2xl">
-                  <h3 className="text-sm font-semibold text-gray-700 mb-4">Genel Ozellikler</h3>
-                  <table className="w-full">
-                    <tbody>
-                      {selectedProps.props?.map((p: any) => (
-                        <tr key={p.label} className="border-b border-gray-100">
-                          <td className="py-2.5 pr-4 text-sm text-gray-500 w-40">{p.label}</td>
-                          <td className="py-2.5">
-                            <input value={p.value} readOnly
-                              className="w-full px-3 py-1.5 text-sm bg-gray-50 border border-gray-200 rounded focus:ring-1 focus:ring-blue-500 outline-none" />
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-
-              {activeTab === 'Alanlar' && selectedProps.fields && (
-                <div className="bg-white rounded-xl shadow-sm overflow-hidden max-w-3xl">
-                  <div className="px-6 py-3 bg-gray-50 border-b border-gray-100 flex justify-between items-center">
-                    <h3 className="text-sm font-semibold text-gray-700">Alanlar</h3>
-                    <button className="flex items-center gap-1 px-2 py-1 text-xs text-blue-600 hover:bg-blue-50 rounded">
-                      <Plus className="w-3 h-3" /> Alan Ekle
-                    </button>
-                  </div>
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b border-gray-100">
-                        <th className="px-4 py-2 text-left text-xs text-gray-500 font-medium w-8">#</th>
-                        <th className="px-4 py-2 text-left text-xs text-gray-500 font-medium">Alan Adi</th>
-                        <th className="px-4 py-2 text-left text-xs text-gray-500 font-medium">Veri Tipi</th>
-                        <th className="px-4 py-2 text-center text-xs text-gray-500 font-medium w-16">Zorunlu</th>
-                        <th className="px-4 py-2 text-center text-xs text-gray-500 font-medium w-16">Benzersiz</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {selectedProps.fields.map((f: any, i: number) => (
-                        <tr key={f.name} className="border-b border-gray-50 hover:bg-blue-50/30">
-                          <td className="px-4 py-2 text-gray-400">{i + 1}</td>
-                          <td className="px-4 py-2 font-medium text-gray-700">{f.name}</td>
-                          <td className="px-4 py-2">
-                            <span className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-xs font-mono">{f.type}</span>
-                          </td>
-                          <td className="px-4 py-2 text-center">{f.req ? '✓' : ''}</td>
-                          <td className="px-4 py-2 text-center">{f.uniq ? '✓' : ''}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-
-              {activeTab === 'Formlar' && (
-                <div className="bg-white rounded-xl shadow-sm p-6 max-w-2xl">
-                  <h3 className="text-sm font-semibold text-gray-700 mb-4">Bagli Formlar</h3>
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
-                      <ClipboardList className="w-4 h-4 text-cyan-500" />
-                      <span className="text-sm text-gray-700">{selectedProps.title}Form</span>
-                      <span className="text-xs text-gray-400 ml-auto">Liste + Detay</span>
-                    </div>
-                    <div className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
-                      <ClipboardList className="w-4 h-4 text-cyan-500" />
-                      <span className="text-sm text-gray-700">{selectedProps.title}ListForm</span>
-                      <span className="text-xs text-gray-400 ml-auto">Liste</span>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {activeTab === 'Komutlar' && (
-                <div className="bg-white rounded-xl shadow-sm p-6 max-w-2xl">
-                  <h3 className="text-sm font-semibold text-gray-700 mb-4">Komutlar</h3>
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg">
-                      <Code className="w-4 h-4 text-gray-400" />
-                      <span className="text-sm text-gray-700">Yeni {selectedProps.title}</span>
-                    </div>
-                    <div className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg">
-                      <Code className="w-4 h-4 text-gray-400" />
-                      <span className="text-sm text-gray-700">{selectedProps.title} Listesi</span>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {activeTab === 'Haklar' && (
-                <div className="bg-white rounded-xl shadow-sm p-6 max-w-2xl">
-                  <h3 className="text-sm font-semibold text-gray-700 mb-4">Erisim Haklari</h3>
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b">
-                        <th className="py-2 text-left text-xs text-gray-500">Rol</th>
-                        <th className="py-2 text-center text-xs text-gray-500">Okuma</th>
-                        <th className="py-2 text-center text-xs text-gray-500">Yazma</th>
-                        <th className="py-2 text-center text-xs text-gray-500">Silme</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr className="border-b border-gray-50">
-                        <td className="py-2 text-gray-700">admin</td>
-                        <td className="py-2 text-center"><input type="checkbox" checked readOnly /></td>
-                        <td className="py-2 text-center"><input type="checkbox" checked readOnly /></td>
-                        <td className="py-2 text-center"><input type="checkbox" checked readOnly /></td>
-                      </tr>
-                      <tr className="border-b border-gray-50">
-                        <td className="py-2 text-gray-700">manager</td>
-                        <td className="py-2 text-center"><input type="checkbox" checked readOnly /></td>
-                        <td className="py-2 text-center"><input type="checkbox" checked readOnly /></td>
-                        <td className="py-2 text-center"><input type="checkbox" readOnly /></td>
-                      </tr>
-                      <tr>
-                        <td className="py-2 text-gray-700">user</td>
-                        <td className="py-2 text-center"><input type="checkbox" checked readOnly /></td>
-                        <td className="py-2 text-center"><input type="checkbox" readOnly /></td>
-                        <td className="py-2 text-center"><input type="checkbox" readOnly /></td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              )}
-
-              {activeTab === 'Olaylar' && selectedProps.events && (
-                <div className="bg-white rounded-xl shadow-sm overflow-hidden max-w-3xl">
-                  <div className="px-6 py-3 bg-gray-50 border-b border-gray-100">
-                    <h3 className="text-sm font-semibold text-gray-700">Olaylar (Events)</h3>
-                    <p className="text-xs text-gray-400 mt-0.5">Nesne yasam dongusunde tetiklenen FSL kod bloklari</p>
-                  </div>
-                  <div className="divide-y divide-gray-100">
-                    {selectedProps.events.map((ev: any) => (
-                      <div key={ev.name} className="px-6 py-3">
-                        <div className="flex items-center justify-between mb-1">
-                          <div className="flex items-center gap-2">
-                            <span className={`w-2 h-2 rounded-full ${ev.hasCode ? 'bg-emerald-500' : 'bg-gray-300'}`} />
-                            <span className="text-sm font-medium text-gray-700">{ev.label}</span>
-                            <span className="text-[10px] font-mono text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">{ev.name}</span>
-                          </div>
-                          <button className="text-xs text-blue-600 hover:text-blue-800">
-                            {ev.hasCode ? 'Duzenle' : '+ Kod Ekle'}
-                          </button>
-                        </div>
-                        {ev.hasCode && ev.code && (
-                          <pre className="mt-1.5 px-3 py-2 bg-gray-900 rounded-lg text-xs font-mono text-green-400 overflow-x-auto">
-                            {ev.code}
-                          </pre>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Metodlar Tab */}
-              {activeTab === 'Metodlar' && selectedProps.methods && (
-                <div className="bg-white rounded-xl shadow-sm overflow-hidden max-w-3xl">
-                  <div className="px-6 py-3 bg-gray-50 border-b border-gray-100 flex justify-between items-center">
-                    <div>
-                      <h3 className="text-sm font-semibold text-gray-700">Metodlar</h3>
-                      <p className="text-xs text-gray-400 mt-0.5">FSL ile yazilmis is mantigi fonksiyonlari</p>
-                    </div>
-                    <button className="flex items-center gap-1 px-2 py-1 text-xs text-blue-600 hover:bg-blue-50 rounded">
-                      <Plus className="w-3 h-3" /> Metod Ekle
-                    </button>
-                  </div>
-                  <div className="divide-y divide-gray-100">
-                    {selectedProps.methods.map((m: any) => (
-                      <div key={m.name} className="px-6 py-3">
-                        <div className="flex items-center justify-between mb-1.5">
-                          <div className="flex items-center gap-2">
-                            <Code className="w-3.5 h-3.5 text-blue-500" />
-                            <span className="text-sm font-medium text-gray-700 font-mono">{m.name}({m.params})</span>
-                            <span className="text-[10px] text-gray-400">→ {m.returns}</span>
-                          </div>
-                          <button className="text-xs text-blue-600 hover:text-blue-800">Duzenle</button>
-                        </div>
-                        <pre className="px-3 py-2 bg-gray-900 rounded-lg text-xs font-mono text-green-400 overflow-x-auto whitespace-pre-wrap">
-                          {m.code}
-                        </pre>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Kalemler Tab (Document tabular section) */}
-              {activeTab === 'Kalemler' && selectedProps.lineFields && (
-                <div className="bg-white rounded-xl shadow-sm overflow-hidden max-w-3xl">
-                  <div className="px-6 py-3 bg-gray-50 border-b border-gray-100 flex justify-between items-center">
-                    <div>
-                      <h3 className="text-sm font-semibold text-gray-700">Kalem Alanlari (Tabular Section)</h3>
-                      <p className="text-xs text-gray-400 mt-0.5">Belge satirlarinda bulunan alanlar</p>
-                    </div>
-                    <button className="flex items-center gap-1 px-2 py-1 text-xs text-blue-600 hover:bg-blue-50 rounded">
-                      <Plus className="w-3 h-3" /> Alan Ekle
-                    </button>
-                  </div>
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b border-gray-100">
-                        <th className="px-4 py-2 text-left text-xs text-gray-500 font-medium w-8">#</th>
-                        <th className="px-4 py-2 text-left text-xs text-gray-500 font-medium">Alan Adi</th>
-                        <th className="px-4 py-2 text-left text-xs text-gray-500 font-medium">Veri Tipi</th>
-                        <th className="px-4 py-2 text-center text-xs text-gray-500 font-medium w-16">Zorunlu</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {selectedProps.lineFields.map((f: any, i: number) => (
-                        <tr key={f.name} className="border-b border-gray-50 hover:bg-blue-50/30">
-                          <td className="px-4 py-2 text-gray-400">{i + 1}</td>
-                          <td className="px-4 py-2 font-medium text-gray-700">{f.name}</td>
-                          <td className="px-4 py-2"><span className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-xs font-mono">{f.type}</span></td>
-                          <td className="px-4 py-2 text-center">{f.req ? '✓' : ''}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-
-              {/* Kalemler/Boyutlar/Kaynaklar - icerik yoksa */}
-              {(activeTab === 'Kalemler' && !selectedProps.lineFields) && (
-                <div className="bg-white rounded-xl shadow-sm p-6 max-w-2xl">
-                  <h3 className="text-sm font-semibold text-gray-700 mb-2">Kalemler</h3>
-                  <p className="text-sm text-gray-400">Bu nesne icin tabular section tanimlanmamis.</p>
-                </div>
-              )}
-              {(activeTab === 'Boyutlar' || activeTab === 'Kaynaklar') && (
-                <div className="bg-white rounded-xl shadow-sm p-6 max-w-2xl">
-                  <h3 className="text-sm font-semibold text-gray-700 mb-2">{activeTab}</h3>
-                  <p className="text-sm text-gray-400">Register boyut/kaynak bilgileri.</p>
-                </div>
-              )}
-            </div>
-
-            {/* Alt: FSL Kod Onizleme */}
-            <div className="h-40 bg-gray-900 border-t border-gray-700 flex flex-col">
-              <div className="flex items-center justify-between px-4 py-2 border-b border-gray-800">
-                <div className="flex items-center gap-2">
-                  <Code className="w-3.5 h-3.5 text-gray-500" />
-                  <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">FSL Kodu</span>
-                </div>
-                <button className="text-xs text-gray-500 hover:text-white">Duzenle</button>
-              </div>
-              <pre className="flex-1 p-3 text-xs font-mono text-green-400 overflow-auto">
-{selectedProps.type.includes('Document') ? `document ${selectedProps.title} {
-  numbering: "SIP-{YYYY}-{SEQ:4}"
-  fields {
-${selectedProps.fields?.map((f: any) => `    ${f.name}: ${f.type}${f.req ? ' { required }' : ''}`).join('\n')}
-  }
-}` : selectedProps.type.includes('Register') ? `register ${selectedProps.title} {
-  dimensions: "${selectedProps.props?.find((p: any) => p.label === 'Boyutlar')?.value || ''}"
-  resources: "${selectedProps.props?.find((p: any) => p.label === 'Kaynaklar')?.value || ''}"
-  fields {
-${selectedProps.fields?.map((f: any) => `    ${f.name}: ${f.type}`).join('\n')}
-  }
-}` : `entity ${selectedProps.title} {
-  fields {
-${selectedProps.fields?.map((f: any) => `    ${f.name}: ${f.type}${f.req ? ' { required' : ''}${f.uniq ? (f.req ? ', unique }' : ' { unique }') : (f.req ? ' }' : '')}`).join('\n')}
-  }
-}`}
-              </pre>
-            </div>
-          </>
-        ) : (
-          <div className="flex-1 flex items-center justify-center text-gray-400">
-            <div className="text-center">
-              <Settings className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-              <p className="font-medium">FLYX Studio Configurator</p>
-              <p className="text-sm mt-1">Sol panelden bir nesne secin</p>
-            </div>
-          </div>
-        )}
-      </div>
       </div>
 
       {/* STATUS BAR */}
       <div className="h-6 bg-slate-800 text-slate-400 flex items-center px-3 text-[10px] flex-shrink-0">
         <span className="flex items-center gap-1.5">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-          Bagli
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Bagli
         </span>
         <span className="mx-3">|</span>
-        <span>Konfigürasyon: FLYX ERP Demo</span>
+        <span>Nesneler: {totalObjects} (DB)</span>
         <span className="mx-3">|</span>
-        <span>Nesneler: 50</span>
-        <span className="mx-3">|</span>
-        <span>Son degisiklik: henuz kaydedilmedi</span>
+        <span>{selectedObject ? `Secili: ${selectedObject.object_type}/${selectedObject.name} v${selectedObject.version}` : 'Nesne secilmedi'}</span>
         <div className="flex-1" />
-        <span>Tenant: demo</span>
-        <span className="mx-3">|</span>
-        <span>Kullanici: admin@flyx.com</span>
+        <span>Tenant: demo | admin@flyx.com</span>
       </div>
     </div>
   );
-}
 
-// Agac gorunum component'leri
-function TreeGroup({ group, expanded, selected, onToggle, onSelect }: any) {
-  const isExpanded = expanded.has(group.id);
-  const Icon = group.icon || Box;
-
-  return (
-    <div>
-      <button
-        onClick={() => onToggle(group.id)}
-        className="w-full flex items-center gap-1.5 px-2 py-1.5 text-xs hover:bg-gray-100"
-      >
-        {isExpanded ? <ChevronDown className="w-3 h-3 text-gray-400" /> : <ChevronRight className="w-3 h-3 text-gray-400" />}
-        <Icon className={`w-3.5 h-3.5 ${group.color || 'text-gray-400'}`} />
-        <span className="font-semibold text-gray-700">{group.label}</span>
-        <span className="ml-auto text-[10px] text-gray-400">{group.children?.length}</span>
-      </button>
-
-      {isExpanded && group.children && (
-        <div className="ml-3">
-          {group.children.map((child: any) =>
-            child.children ? (
-              <TreeGroup key={child.id} group={child} expanded={expanded} selected={selected} onToggle={onToggle} onSelect={onSelect} />
-            ) : (
-              <button
-                key={child.id}
-                onClick={() => onSelect(child.id)}
-                className={`w-full flex items-center gap-1.5 px-3 py-1 text-xs rounded-md transition-colors ${
-                  selected === child.id
-                    ? 'bg-blue-100 text-blue-700 font-medium'
-                    : 'text-gray-600 hover:bg-gray-100'
-                }`}
-              >
-                <span className="text-gray-400">•</span>
-                {child.label}
-                {child.fields && <span className="ml-auto text-[10px] text-gray-400">{child.fields} alan</span>}
-              </button>
-            ),
-          )}
-        </div>
-      )}
-    </div>
-  );
+  function toggleNode(id: string) {
+    setExpandedNodes((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }
 }
