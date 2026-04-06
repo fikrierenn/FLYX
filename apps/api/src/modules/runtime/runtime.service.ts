@@ -136,7 +136,8 @@ export class RuntimeService implements OnModuleInit {
     const result = this.compiler.compile(source);
 
     for (const decl of result.ast) {
-      if (decl.type === 'EntityDeclaration') {
+      if (decl.type === 'EntityDeclaration' || decl.type === 'DocumentDeclaration' || decl.type === 'RegisterDeclaration') {
+        // Entity, Document ve Register hepsi ayni sekilde DB tablosu + CRUD olusturur
         await this.registerEntity(decl as EntityDeclaration);
       } else if (decl.type === 'FormDeclaration') {
         this.registerForm(decl as FormDeclaration);
