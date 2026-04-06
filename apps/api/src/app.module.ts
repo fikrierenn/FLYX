@@ -24,6 +24,7 @@ import { AuditModule } from './modules/audit/audit.module';
 import { RolesModule } from './modules/roles/roles.module';
 import { RuntimeModule } from './modules/runtime/runtime.module';
 import { SalesModule } from './modules/sales/sales.module';
+import { ConfigurationModule } from './modules/configuration/configuration.module';
 
 @Module({
   imports: [
@@ -53,6 +54,7 @@ import { SalesModule } from './modules/sales/sales.module';
     RolesModule,
     RuntimeModule,
     SalesModule,
+    ConfigurationModule,
   ],
   providers: [
     // Global rate limit guard

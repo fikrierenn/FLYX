@@ -392,10 +392,59 @@ Simdi soyutlama YAPMA (overengineering). Ama is mantigi ve render'i karistirma.
 
 ---
 
+## TAMAMLANAN (Session 4)
+
+1. ✅ Stok belgeleri: PurchaseReceipt, SalesDelivery, TransferOrder, StockCount + kalemleri
+2. ✅ Fatura belgeleri: SalesInvoice, PurchaseInvoice + kalemleri
+3. ✅ FLYX Studio Configurator (1C benzeri gorunum - toolbar, agac, tablar)
+4. ✅ Studio core soyutlama (FormController, RenderAdapter, types)
+5. ✅ Configuration DB mimarisi (configuration_objects, history, dependencies)
+6. ✅ ConfigurationService (CRUD, seed, tree, locking)
+
+---
+
+## KRITIK KARAR: CONFIGURATION DB MIMARISI
+
+**Karar:** Tum nesne tanimlari DB'de saklanir (disk'te sabit dosya yok).
+
+**Model: HIBRIT**
+- Gelistirme: disk'te .fsl yaz → `flyx sync` → DB'ye yukle
+- Uretim: Configurator → DB'den oku/yaz → versiyon gecmisi
+- Her tenant kendi konfigurasyonunu DB'de saklar (multi-tenant)
+
+**Tablolar:**
+- `configuration_objects` - ana tablo (fsl_code, compiled_ast, metadata)
+- `configuration_history` - versiyon gecmisi (her degisiklik kaydedilir)
+- `configuration_dependencies` - nesne bagimliliklari
+
+**Detay:** docs/CONFIGURATION_DB_ARCHITECTURE.md
+
+---
+
+## KRITIK KARAR: BELGE ZINCIRI
+
+Stok hareketi dogrudan girilmez - belgelerden olusur:
+
+```
+ALIS:  PurchaseOrder → PurchaseReceipt (stok+) → PurchaseInvoice (cari borc)
+       Fiyat farki varsa → PriceDifferenceInvoice (adet ayni, fiyat farkli)
+
+SATIS: SalesOrder → SalesDelivery (stok-) → SalesInvoice (cari alacak)
+       Iade varsa → ReturnInvoice (stok+, cari borc-)
+
+STOK:  TransferOrder (depo arasi), StockCount (sayim farki)
+```
+
+**Posting mekanizmasi:** Belge "kayit edilir" → register'a hareket olusur.
+Dogrudan register'a kayit YAZILMAZ.
+
+---
+
 ## SONRAKI ADIMLAR
 
-1. Stok modulu (document + register ile)
-2. External API katmani
-3. MenuBuilder (FSL modullerden otomatik sidebar)
-4. Kalan moduller (production, quality, treasury...)
-5. 1C Configurator benzeri tam tasarim ortami
+1. RuntimeService'i DB'den yukleyecek sekilde guncelle
+2. Configurator'i gercek API'ye bagla (mock data kaldir)
+3. ERP sidebar'i DB'den dinamik yukle
+4. Posting mekanizmasi (belge kayit → register hareket)
+5. Fiyat farki faturasi
+6. Satis/satinalma sartlari kontrolu
