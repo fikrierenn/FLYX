@@ -1,54 +1,78 @@
 // Satis Siparisi (Sales Order)
-// Musteriye yapilan satis siparislerini tanimlar.
-// Siparis satirlari SalesOrderItem entity'sinde tutulur.
+// SAP'taki VA01 transaction'ina karsilik gelir.
+// Master-detail yapi: SalesOrder (baslik) + SalesOrderItem (satirlar)
+// Tum is mantigi FSL'de tanimli - TS is kodu YOK.
 
 entity SalesOrder {
   fields {
-    // Siparis numarasi - otomatik artan veya onek ile uretilir
     order_no: String(20) { required, unique, indexed }
-
-    // Siparis verilen musteri
     customer: Relation(Customer) { required }
-
-    // Siparis tarihi
     order_date: Date { required }
-
-    // Teslim tarihi (tahmini veya taahhut edilen)
     delivery_date: Date
-
-    // Ara toplam (KDV haric)
     subtotal: Decimal(15,2) { default: 0 }
-
-    // Toplam vergi tutari
+    discount_total: Decimal(15,2) { default: 0 }
     tax_amount: Decimal(15,2) { default: 0 }
-
-    // Genel toplam (KDV dahil)
     total: Decimal(15,2) { default: 0 }
-
-    // Siparis para birimi
     currency: String(3) { default: "TRY" }
-
-    // Siparis durumu - yasam dongusu asamalari
     status: Enum {
       values: ["draft", "confirmed", "shipped", "delivered", "cancelled"],
       default: "draft"
     }
-
-    // Siparis notlari
     notes: Text
   }
 
-  permissions {
-    create: ["admin", "manager", "user"]
-    read: ["admin", "manager", "user"]
-    update: ["admin", "manager"]
-    delete: ["admin"]
+  methods {
+    // Siparis toplamlarini satirlardan hesapla
+    // Bu method API tarafindan satirlar kaydedildikten sonra cagrilir
+    recalculate_totals() {
+      // NOT: Simdlik satirlar ayri entity, toplam API katmaninda hesaplanir
+      // Ileride: this.subtotal = query("SELECT SUM(line_total) FROM sales_order_item WHERE sales_order = {this.id}");
+      return true;
+    }
+
+    // Durum gecisi kontrolu
+    can_confirm() {
+      if (this.status != "draft") {
+        return false;
+      }
+      if (this.total == 0) {
+        return false;
+      }
+      return true;
+    }
+
+    can_ship() {
+      if (this.status != "confirmed") {
+        return false;
+      }
+      return true;
+    }
+
+    can_cancel() {
+      if (this.status == "shipped") {
+        return false;
+      }
+      if (this.status == "delivered") {
+        return false;
+      }
+      if (this.status == "cancelled") {
+        return false;
+      }
+      return true;
+    }
   }
 
   triggers {
-    after_update {
-      // Siparis onaylandiginda stok rezervasyonu yap
-      // Siparis iptal edildiginde stok rezervasyonunu kaldir
+    before_create {
+      // Yeni siparis her zaman taslak baslar
+      this.status = "draft";
     }
+  }
+
+  permissions {
+    create: ["admin"]
+    read: ["admin"]
+    update: ["admin"]
+    delete: ["admin"]
   }
 }
