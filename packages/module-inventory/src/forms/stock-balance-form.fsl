@@ -1,0 +1,22 @@
+// Stok Bakiye Formu
+// Urun + depo bazinda anlık stok durumu
+
+form StockBalanceForm {
+  entity: StockBalance
+  layout: "two_column"
+
+  sections {
+    main {
+      label: "Stok Bilgileri"
+      fields: ["product", "warehouse", "quantity", "reserved_quantity", "available_quantity"]
+    }
+    cost {
+      label: "Maliyet"
+      fields: ["average_cost", "last_movement_date"]
+    }
+  }
+
+  actions {
+    save { label: "Kaydet", style: "primary" }
+  }
+}

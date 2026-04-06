@@ -1,50 +1,58 @@
-// Stok Hareketi (Stock Movement)
-// Depoya giris, cikis ve transfer islemlerini kaydeder.
-// Her hareket stok seviyesini otomatik gunceller.
+// Stok Hareketi Belgesi (Stock Movement Document)
+// 1C'deki "Belge" (Document) karsiligi.
+// Depoya giris, cikis ve transfer islemlerini yonetir.
+// Her hareket StockLevel'i otomatik gunceller (trigger ile).
 
-entity StockMovement {
+document StockMovement {
+  numbering: "STK-{YYYY}-{SEQ:5}"
+
   fields {
-    // Hareket numarasi - benzersiz takip kodu
     movement_no: String(20) { required, unique, indexed }
-
-    // Urun
-    product: Relation(Product) { required }
-
-    // Depo (giris/cikis yapilan depo)
     warehouse: Relation(Warehouse) { required }
-
-    // Hareket tipi
     movement_type: Enum {
       values: ["in", "out", "transfer"],
       default: "in"
     }
-
-    // Miktar (her zaman pozitif deger)
-    quantity: Decimal(10,3) { required }
-
-    // Referans belge tipi (orn: "purchase_order", "sales_order", "production")
-    reference_type: String(50)
-
-    // Referans belge numarasi
-    reference_no: String(50)
-
-    // Hareket tarihi
     movement_date: Date { required }
-
-    // Aciklama / notlar
+    reference_type: String(50)
+    reference_no: String(50)
+    total_quantity: Decimal(10,3) { default: 0 }
+    status: Enum {
+      values: ["draft", "posted", "cancelled"],
+      default: "draft"
+    }
     notes: Text
   }
 
-  permissions {
-    create: ["admin", "manager"]
-    read: ["admin", "manager", "user"]
-    update: ["admin"]
-    delete: ["admin"]
+  methods {
+    can_post() {
+      if (this.status != "draft") {
+        return false;
+      }
+      if (this.total_quantity == 0) {
+        return false;
+      }
+      return true;
+    }
+
+    can_cancel() {
+      if (this.status == "cancelled") {
+        return false;
+      }
+      return true;
+    }
   }
 
   triggers {
-    after_create {
-      // Stok seviyesini guncelle (giris: arttir, cikis: azalt)
+    before_create {
+      this.status = "draft";
     }
+  }
+
+  permissions {
+    create: ["admin"]
+    read: ["admin"]
+    update: ["admin"]
+    delete: ["admin"]
   }
 }

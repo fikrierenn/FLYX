@@ -1,0 +1,26 @@
+// Stok Bakiye Register'i (Stock Balance Register)
+// 1C'deki "Birikim Registeri" (Accumulation Register) karsiligi.
+// Urun + Depo bazinda stok miktarini takip eder.
+// StockMovement belgesi kayit edildiginde otomatik guncellenir.
+
+register StockBalance {
+  dimensions: "product"
+  resources: "quantity"
+
+  fields {
+    product: Relation(Product) { required }
+    warehouse: Relation(Warehouse) { required }
+    quantity: Decimal(10,3) { default: 0 }
+    reserved_quantity: Decimal(10,3) { default: 0 }
+    available_quantity: Decimal(10,3) { default: 0 }
+    last_movement_date: Date
+    average_cost: Decimal(15,2) { default: 0 }
+  }
+
+  permissions {
+    create: ["admin"]
+    read: ["admin"]
+    update: ["admin"]
+    delete: ["admin"]
+  }
+}

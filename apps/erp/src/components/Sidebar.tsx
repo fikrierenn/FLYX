@@ -13,6 +13,7 @@ const MENU = [
   { group: 'Stok & Depo' },
   { path: '/products', label: 'Urunler', icon: Package },
   { path: '/inventory', label: 'Stok Hareketleri', icon: Warehouse },
+  { path: '/stock-balance', label: 'Stok Bakiyesi', icon: Package },
   { path: '/warehouses', label: 'Depolar', icon: Warehouse },
   { group: 'Satinalma' },
   { path: '/purchases', label: 'Satinalma Siparisleri', icon: Truck },

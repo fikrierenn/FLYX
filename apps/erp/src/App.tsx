@@ -20,7 +20,8 @@ function ERPLayout() {
           <Route path="/sales" element={<StudioPage entityName="SalesOrder" title="Satis Siparisi" linesEntity="SalesOrderItem" />} />
           <Route path="/customers" element={<StudioPage entityName="Customer" title="Musteri" />} />
           <Route path="/products" element={<StudioPage entityName="Product" title="Urun" />} />
-          <Route path="/inventory" element={<StudioPage entityName="StockMovement" title="Stok Hareketi" />} />
+          <Route path="/inventory" element={<StudioPage entityName="StockMovement" title="Stok Hareketi" linesEntity="StockMovementItem" />} />
+          <Route path="/stock-balance" element={<StudioPage entityName="StockBalance" title="Stok Bakiyesi" />} />
           <Route path="/purchases" element={<StudioPage entityName="PurchaseOrder" title="Satinalma Siparisi" />} />
           <Route path="/invoices" element={<StudioPage entityName="JournalEntry" title="Muhasebe Fisi" />} />
           <Route path="/finance" element={<StudioPage entityName="Account" title="Hesap Plani" />} />

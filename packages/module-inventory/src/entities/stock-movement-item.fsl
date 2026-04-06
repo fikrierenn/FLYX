@@ -1,0 +1,39 @@
+// Stok Hareketi Kalemi (Stock Movement Line Item)
+// Her bir urunun miktar ve birim bilgisini tutar.
+// Hesaplama trigger ile otomatik yapilir.
+
+entity StockMovementItem {
+  fields {
+    stock_movement: Relation(StockMovement) { required }
+    product: Relation(Product) { required }
+    quantity: Decimal(10,3) { required, min: 0 }
+    unit: String(20) { default: "ADET" }
+    unit_cost: Decimal(15,2) { default: 0 }
+    total_cost: Decimal(15,2) { default: 0 }
+    lot_no: String(50)
+    serial_no: String(50)
+    notes: String(500)
+  }
+
+  methods {
+    calculate() {
+      this.total_cost = this.quantity * this.unit_cost;
+    }
+  }
+
+  triggers {
+    before_create {
+      this.calculate();
+    }
+    before_update {
+      this.calculate();
+    }
+  }
+
+  permissions {
+    create: ["admin"]
+    read: ["admin"]
+    update: ["admin"]
+    delete: ["admin"]
+  }
+}

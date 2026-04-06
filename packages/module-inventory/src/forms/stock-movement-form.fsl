@@ -1,33 +1,29 @@
-// Stok Hareketi Formu
-// Stok giris, cikis ve transfer islemleri icin iki sutunlu form tasarimi.
+// Stok Hareketi Formu (Master-Detail)
+// Baslik: depo, hareket tipi, tarih
+// Kalemler: urun, miktar, birim, maliyet
 
 form StockMovementForm {
   entity: StockMovement
   layout: "two_column"
 
   sections {
-    movement_info {
+    header {
       label: "Hareket Bilgileri"
-      fields: ["movement_no", "movement_type", "movement_date"]
-    }
-    product_info {
-      label: "Urun ve Depo"
-      fields: ["product", "warehouse", "quantity"]
+      fields: ["movement_no", "warehouse", "movement_type", "movement_date", "status"]
     }
     reference {
-      label: "Referans Bilgileri"
-      fields: ["reference_type", "reference_no", "notes"]
+      label: "Referans"
+      fields: ["reference_type", "reference_no"]
+    }
+    notes {
+      label: "Notlar"
+      fields: ["notes"]
     }
   }
 
   actions {
-    save {
-      label: "Kaydet"
-      style: "primary"
-    }
-    cancel {
-      label: "Iptal"
-      style: "secondary"
-    }
+    save { label: "Kaydet", style: "primary" }
+    post { label: "Kayit Et", style: "success" }
+    cancel { label: "Iptal", style: "secondary" }
   }
 }
