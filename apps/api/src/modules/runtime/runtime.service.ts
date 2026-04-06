@@ -20,6 +20,7 @@ import { TableGenerator } from '@flyx/database-engine';
 import { DatabaseService } from '../database/database.module';
 import { RolesService } from '../roles/roles.service';
 import { FSLRuntime } from '@flyx/runtime-engine';
+import { ConfigurationService } from '../configuration/configuration.service';
 
 export interface LoadedEntity {
   name: string;
@@ -52,22 +53,74 @@ export class RuntimeService implements OnModuleInit {
   constructor(
     private readonly db: DatabaseService,
     private readonly rolesService: RolesService,
+    private readonly configService: ConfigurationService,
   ) {}
 
   async onModuleInit() {
     // Runtime engine'e DB sorgu calistiricisini bagla
     this.fslRuntime.setQueryExecutor(this.db);
 
-    // Baslandiginda modulleri otomatik yukle
+    // 1. Configuration tablolarini olustur
+    try {
+      await this.configService.runMigrations();
+    } catch (err: any) {
+      this.logger.warn(`Migration hatasi: ${err.message}`);
+    }
+
+    // 2. DB'den konfigurasyonu yukle
+    let dbObjects = await this.configService.findAll();
+
+    // 3. DB bossa → disk'ten seed yap (ilk kurulum)
+    if (dbObjects.length === 0) {
+      this.logger.log('DB bos - disk FSL dosyalarindan seed yapiliyor...');
+      const seedCount = await this.configService.seedFromDisk();
+      if (seedCount > 0) {
+        dbObjects = await this.configService.findAll();
+        this.logger.log(`${seedCount} nesne disk'ten DB'ye yuklendi`);
+      } else {
+        // Seed de basarisizsa eski yontemle disk'ten yukle (fallback)
+        this.logger.warn('Seed basarisiz - disk fallback');
+        await this.loadFromDiskFallback();
+        return;
+      }
+    }
+
+    // 4. DB'deki nesneleri Runtime'a yukle
+    for (const obj of dbObjects) {
+      try {
+        if (['entity', 'document', 'register'].includes(obj.object_type)) {
+          const ast = obj.compiled_ast || this.compileFSL(obj.fsl_code);
+          if (ast) await this.registerEntity(ast);
+        } else if (obj.object_type === 'form') {
+          const ast = obj.compiled_ast || this.compileFSL(obj.fsl_code);
+          if (ast) this.registerForm(ast as any);
+        }
+      } catch (err: any) {
+        this.logger.warn(`${obj.object_type}/${obj.name} yuklenemedi: ${err.message}`);
+      }
+    }
+
+    this.logger.log(`DB'den yuklendi: ${this.entities.size} entity, ${this.forms.size} form`);
+  }
+
+  /** FSL kodunu derle (cache yoksa) */
+  private compileFSL(fslCode: string): any {
+    try {
+      const result = this.compiler.compile(fslCode);
+      return result.ast[0];
+    } catch {
+      return null;
+    }
+  }
+
+  /** Disk fallback (DB kullanilamazsa eski yontem) */
+  private async loadFromDiskFallback() {
     const modulePaths = this.findModulePaths();
     if (modulePaths.length > 0) {
-      this.logger.log(`${modulePaths.length} modul dizini bulundu`);
       for (const modulePath of modulePaths) {
         await this.loadModuleFromPath(modulePath);
       }
-      this.logger.log(`Toplam: ${this.entities.size} entity, ${this.forms.size} form yuklendi`);
-    } else {
-      this.logger.warn('Modul dizini bulunamadi - bos baslatiliyor');
+      this.logger.log(`Disk fallback: ${this.entities.size} entity, ${this.forms.size} form`);
     }
   }
 
