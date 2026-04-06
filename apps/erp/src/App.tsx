@@ -25,6 +25,8 @@ function ERPLayout() {
           <Route path="/transfer-orders" element={<StudioPage entityName="TransferOrder" title="Transfer Emri" linesEntity="TransferOrderItem" />} />
           <Route path="/stock-counts" element={<StudioPage entityName="StockCount" title="Sayim Fisi" linesEntity="StockCountItem" />} />
           <Route path="/stock-balance" element={<StudioPage entityName="StockBalance" title="Stok Bakiyesi" />} />
+          <Route path="/sales-invoices" element={<StudioPage entityName="SalesInvoice" title="Satis Faturasi" linesEntity="SalesInvoiceItem" />} />
+          <Route path="/purchase-invoices" element={<StudioPage entityName="PurchaseInvoice" title="Alis Faturasi" linesEntity="PurchaseInvoiceItem" />} />
           <Route path="/purchases" element={<StudioPage entityName="PurchaseOrder" title="Satinalma Siparisi" />} />
           <Route path="/invoices" element={<StudioPage entityName="JournalEntry" title="Muhasebe Fisi" />} />
           <Route path="/finance" element={<StudioPage entityName="Account" title="Hesap Plani" />} />

@@ -1,0 +1,58 @@
+// Alis Faturasi (Purchase Invoice)
+// Alis irsaliyesinden olusturulur.
+// Kayit edildiginde → Tedarikci cari hesaba ALACAK yazilir.
+
+document PurchaseInvoice {
+  numbering: "AFT-{YYYY}-{SEQ:5}"
+
+  fields {
+    invoice_no: String(20) { required, unique, indexed }
+    invoice_date: Date { required }
+    due_date: Date
+    supplier: Relation(Supplier) { required }
+    purchase_receipt: Relation(PurchaseReceipt)
+    purchase_order: Relation(PurchaseOrder)
+    invoice_type: Enum {
+      values: ["standard", "return", "advance"],
+      default: "standard"
+    }
+    subtotal: Decimal(15,2) { default: 0 }
+    discount_total: Decimal(15,2) { default: 0 }
+    tax_total: Decimal(15,2) { default: 0 }
+    grand_total: Decimal(15,2) { default: 0 }
+    currency: String(3) { default: "TRY" }
+    payment_term_days: Number { default: 30 }
+    status: Enum {
+      values: ["draft", "posted", "paid", "cancelled"],
+      default: "draft"
+    }
+    notes: Text
+  }
+
+  methods {
+    can_post() {
+      if (this.status != "draft") { return false; }
+      if (this.grand_total == 0) { return false; }
+      return true;
+    }
+
+    can_cancel() {
+      if (this.status == "paid") { return false; }
+      if (this.status == "cancelled") { return false; }
+      return true;
+    }
+  }
+
+  triggers {
+    before_create {
+      this.status = "draft";
+    }
+  }
+
+  permissions {
+    create: ["admin"]
+    read: ["admin"]
+    update: ["admin"]
+    delete: ["admin"]
+  }
+}

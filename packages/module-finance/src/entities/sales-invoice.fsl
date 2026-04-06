@@ -1,0 +1,86 @@
+// Satis Faturasi (Sales Invoice)
+// Satis irsaliyesinden olusturulur.
+// Kayit edildiginde → Musteri cari hesaba BORC yazilir.
+// e-Fatura entegrasyonu bu belge uzerinden yapilir.
+
+document SalesInvoice {
+  numbering: "SFT-{YYYY}-{SEQ:5}"
+
+  fields {
+    invoice_no: String(20) { required, unique, indexed }
+    invoice_date: Date { required }
+    due_date: Date
+    customer: Relation(Customer) { required }
+    sales_delivery: Relation(SalesDelivery)
+    sales_order: Relation(SalesOrder)
+    invoice_type: Enum {
+      values: ["standard", "return", "advance"],
+      default: "standard"
+    }
+    subtotal: Decimal(15,2) { default: 0 }
+    discount_total: Decimal(15,2) { default: 0 }
+    tax_total: Decimal(15,2) { default: 0 }
+    grand_total: Decimal(15,2) { default: 0 }
+    currency: String(3) { default: "TRY" }
+    payment_term_days: Number { default: 30 }
+    status: Enum {
+      values: ["draft", "posted", "sent", "paid", "cancelled"],
+      default: "draft"
+    }
+    efatura_status: Enum {
+      values: ["none", "pending", "sent", "accepted", "rejected"],
+      default: "none"
+    }
+    notes: Text
+  }
+
+  methods {
+    can_post() {
+      if (this.status != "draft") { return false; }
+      if (this.grand_total == 0) { return false; }
+      return true;
+    }
+
+    can_send_efatura() {
+      if (this.status != "posted") { return false; }
+      if (this.efatura_status != "none") { return false; }
+      return true;
+    }
+
+    can_cancel() {
+      if (this.status == "paid") { return false; }
+      if (this.status == "cancelled") { return false; }
+      return true;
+    }
+
+    calculate_due_date() {
+      // due_date = invoice_date + payment_term_days
+      // Runtime'da hesaplanacak
+      return true;
+    }
+  }
+
+  triggers {
+    before_create {
+      this.status = "draft";
+      this.efatura_status = "none";
+    }
+
+    // on_post {
+    //   // Musteri cari hesabina BORC yaz
+    //   // create(AccountMovement, {
+    //   //   account: customer.receivable_account,
+    //   //   debit: this.grand_total,
+    //   //   document: "SalesInvoice",
+    //   //   document_no: this.invoice_no
+    //   // });
+    // }
+  }
+
+  permissions {
+    create: ["admin"]
+    read: ["admin"]
+    update: ["admin"]
+    delete: ["admin"]
+  }
+}
