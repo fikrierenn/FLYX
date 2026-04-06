@@ -1,15 +1,8 @@
 /**
  * FSL Statement Executor
  * ========================
- * FSL AST ifadelerini (statement) calistirir.
- * ABAP'taki PERFORM, IF, LOOP gibi kontrol yapilari.
- *
- * Desteklenen:
- * - return ifadesi
- * - let/const degisken tanimlama
- * - if/else kosullu calistirma
- * - expression statement (fonksiyon cagirma, atama)
- * - for/while dongu
+ * FSL AST statement'larini calistirir.
+ * Desteklenen: return, let/const, assignment (this.x = expr), if/else, expression
  */
 
 import type { Statement, Expression } from '@flyx/fsl-compiler';
@@ -25,7 +18,6 @@ export class StatementExecutor {
 
     for (const stmt of statements) {
       result = this.executeStatement(stmt, ctx);
-      // return ile donulen deger
       if (stmt.type === 'ReturnStatement') {
         return result;
       }
@@ -48,15 +40,24 @@ export class StatementExecutor {
         return value;
       }
 
-      case 'ExpressionStatement': {
-        const expr = (stmt as any).expression;
+      case 'AssignmentStatement': {
+        // this.field = expr  →  ctx.set(field, evaluated_value)
+        const target = (stmt as any).target;
+        const value = this.exprExecutor.execute((stmt as any).value, ctx);
 
-        // Atama: this.field = value
-        if (this.isAssignment(expr)) {
-          return this.executeAssignment(expr, ctx);
+        if (target.type === 'MemberExpression' && target.object?.type === 'Identifier' && target.object.name === 'this') {
+          // this.field_name = value
+          ctx.set(target.property, value);
+        } else if (target.type === 'Identifier') {
+          // variable = value
+          ctx.set(target.name, value);
         }
 
-        return this.exprExecutor.execute(expr, ctx);
+        return value;
+      }
+
+      case 'ExpressionStatement': {
+        return this.exprExecutor.execute((stmt as any).expression, ctx);
       }
 
       case 'IfStatement': {
@@ -72,16 +73,5 @@ export class StatementExecutor {
       default:
         return undefined;
     }
-  }
-
-  /** this.total = this.quantity * this.price gibi atama mi? */
-  private isAssignment(expr: any): boolean {
-    // CallExpression olabilir ama MemberExpression + BinaryExpression ise atama
-    // Simdilik basit: expression sonucu MemberExpression'a atama
-    return false; // TODO: AST'de atama operatoru destegi ekle
-  }
-
-  private executeAssignment(expr: any, ctx: RecordContext): any {
-    return this.exprExecutor.execute(expr, ctx);
   }
 }

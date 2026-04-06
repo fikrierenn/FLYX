@@ -140,10 +140,18 @@ export interface MethodParam {
 export type Statement =
   | ReturnStatement
   | VariableDeclaration
+  | AssignmentStatement
   | ExpressionStatement
   | IfStatement
   | ForStatement
   | WhileStatement;
+
+/** Atama ifadesi: this.total = this.quantity * this.price */
+export interface AssignmentStatement extends ASTNode {
+  type: 'AssignmentStatement';
+  target: Expression;
+  value: Expression;
+}
 
 export interface ReturnStatement extends ASTNode {
   type: 'ReturnStatement';

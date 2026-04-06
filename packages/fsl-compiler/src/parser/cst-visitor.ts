@@ -941,10 +941,22 @@ export class CSTToASTVisitor extends BaseCstVisitor {
     return { type: 'WhileStatement', condition, body };
   }
 
-  expressionStatement(ctx: any): ExpressionStatement {
+  expressionStatement(ctx: any): any {
+    const left = this.visit(ctx.expression[0]);
+
+    // Atama: this.field = expr (Assign token varsa)
+    if (ctx.expression.length > 1) {
+      const right = this.visit(ctx.expression[1]);
+      return {
+        type: 'AssignmentStatement',
+        target: left,
+        value: right,
+      };
+    }
+
     return {
       type: 'ExpressionStatement',
-      expression: this.visit(ctx.expression[0]),
+      expression: left,
     };
   }
 
@@ -1012,8 +1024,9 @@ export class CSTToASTVisitor extends BaseCstVisitor {
     let left: Expression = this.visit(ctx.multiplicativeExpression[0]);
 
     if (ctx.multiplicativeExpression.length > 1) {
+      const ops = this.collectOperators(ctx, ['Plus', 'Minus'], ['+', '-']);
       for (let i = 1; i < ctx.multiplicativeExpression.length; i++) {
-        const operator = ctx.Plus && ctx.Plus[i - 1] ? '+' : '-';
+        const operator = ops[i - 1] || '+';
         const right = this.visit(ctx.multiplicativeExpression[i]);
         left = { type: 'BinaryExpression', operator, left, right };
       }
@@ -1026,16 +1039,31 @@ export class CSTToASTVisitor extends BaseCstVisitor {
     let left: Expression = this.visit(ctx.unaryExpression[0]);
 
     if (ctx.unaryExpression.length > 1) {
+      // Operator'lari pozisyon sirasina gore sirala
+      const ops = this.collectOperators(ctx, ['Star', 'Slash', 'Percent'], ['*', '/', '%']);
       for (let i = 1; i < ctx.unaryExpression.length; i++) {
-        let operator = '*';
-        if (ctx.Slash && ctx.Slash[i - 1]) operator = '/';
-        if (ctx.Percent && ctx.Percent[i - 1]) operator = '%';
+        const operator = ops[i - 1] || '*';
         const right = this.visit(ctx.unaryExpression[i]);
         left = { type: 'BinaryExpression', operator, left, right };
       }
     }
 
     return left;
+  }
+
+  /** CST'deki operator token'larini pozisyon sirasina gore topla */
+  private collectOperators(ctx: any, tokenNames: string[], symbols: string[]): string[] {
+    const ops: { offset: number; symbol: string }[] = [];
+    for (let t = 0; t < tokenNames.length; t++) {
+      const tokens = ctx[tokenNames[t]];
+      if (tokens) {
+        for (const tok of tokens) {
+          ops.push({ offset: tok.startOffset, symbol: symbols[t] });
+        }
+      }
+    }
+    ops.sort((a, b) => a.offset - b.offset);
+    return ops.map((o) => o.symbol);
   }
 
   unaryExpression(ctx: any): Expression {

@@ -765,6 +765,11 @@ export class FSLParser extends CstParser {
 
   private expressionStatement = this.RULE('expressionStatement', () => {
     this.SUBRULE(this.expression);
+    // Atama: this.field = expr  veya  variable = expr
+    this.OPTION2(() => {
+      this.CONSUME(Assign);
+      this.SUBRULE2(this.expression);
+    });
     this.OPTION(() => {
       this.CONSUME(Semicolon);
     });

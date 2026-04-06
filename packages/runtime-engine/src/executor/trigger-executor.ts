@@ -41,6 +41,11 @@ export class TriggerExecutor {
   executeTrigger(entity: EntityDeclaration, event: TriggerEvent, ctx: RecordContext): void {
     if (!entity.triggers?.triggers) return;
 
+    // Method resolver bagla - trigger icinde this.calculate() gibi cagirilar icin
+    this.exprExecutor.setMethodResolver((methodName, methodCtx) => {
+      return this.executeMethod(entity, methodName, methodCtx);
+    });
+
     const trigger = entity.triggers.triggers.find((t) => t.event === event);
     if (!trigger || !trigger.body) return;
 

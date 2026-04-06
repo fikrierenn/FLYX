@@ -17,8 +17,17 @@ import type { Expression } from '@flyx/fsl-compiler';
 import { RecordContext } from '../context/record-context.js';
 import type { BuiltinFunctions } from '../functions/builtin-functions.js';
 
+export type MethodResolver = (methodName: string, ctx: RecordContext) => any;
+
 export class ExpressionExecutor {
+  private methodResolver?: MethodResolver;
+
   constructor(private builtins: BuiltinFunctions) {}
+
+  /** Method cozumleyici ayarla (this.calculate() gibi cagirilar icin) */
+  setMethodResolver(resolver: MethodResolver): void {
+    this.methodResolver = resolver;
+  }
 
   /** Tek bir AST expression'i calistir ve sonucu dondur */
   execute(expr: Expression, ctx: RecordContext): any {
@@ -66,9 +75,11 @@ export class ExpressionExecutor {
         const callee = (expr as any).callee;
         const args = ((expr as any).arguments || []).map((a: Expression) => this.execute(a, ctx));
 
-        // this.method() cagirimi
+        // this.method() cagirimi → method resolver'a devret
         if (callee.type === 'MemberExpression' && callee.object.type === 'Identifier' && callee.object.name === 'this') {
-          // this.calculate() gibi - method cagirimi (ileride method executor'a devredilecek)
+          if (this.methodResolver) {
+            return this.methodResolver(callee.property, ctx);
+          }
           return undefined;
         }
 
