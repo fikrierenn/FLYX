@@ -148,7 +148,11 @@ const MOCK_PROPERTIES: Record<string, any> = {
       { label: 'Modul', value: 'Satis' },
       { label: 'Durum', value: 'Aktif' },
     ],
-    tabs: ['Genel', 'Alanlar', 'Olaylar', 'Formlar', 'Komutlar', 'Haklar'],
+    tabs: ['Genel', 'Alanlar', 'Metodlar', 'Olaylar', 'Formlar', 'Komutlar', 'Haklar'],
+    methods: [
+      { name: 'get_display_name', params: '', returns: 'String', code: 'return this.code + " - " + this.name;' },
+      { name: 'get_balance', params: '', returns: 'Decimal', code: 'return query("SELECT SUM(total) FROM sales_order WHERE customer = {this.id}");' },
+    ],
     events: [
       { name: 'before_create', label: 'Olusturma Oncesi', hasCode: false },
       { name: 'after_create', label: 'Olusturma Sonrasi', hasCode: true, code: 'send_email({ to: this.email, template: "welcome" });' },
@@ -177,7 +181,23 @@ const MOCK_PROPERTIES: Record<string, any> = {
       { label: 'Durum Akisi', value: 'draft → confirmed → shipped' },
       { label: 'Modul', value: 'Satis' },
     ],
-    tabs: ['Genel', 'Alanlar', 'Kalemler', 'Olaylar', 'Formlar', 'Komutlar', 'Haklar'],
+    tabs: ['Genel', 'Alanlar', 'Kalemler', 'Metodlar', 'Olaylar', 'Formlar', 'Komutlar', 'Haklar'],
+    methods: [
+      { name: 'can_confirm', params: '', returns: 'Boolean', code: 'if (this.status != "draft") { return false; }\nif (this.total == 0) { return false; }\nreturn true;' },
+      { name: 'can_ship', params: '', returns: 'Boolean', code: 'if (this.status != "confirmed") { return false; }\nreturn true;' },
+      { name: 'can_cancel', params: '', returns: 'Boolean', code: 'if (this.status == "shipped") { return false; }\nreturn true;' },
+      { name: 'recalculate_totals', params: '', returns: 'void', code: '// Satirlardan toplam hesapla' },
+    ],
+    lineFields: [
+      { name: 'product', type: 'Relation(Product)', req: true },
+      { name: 'quantity', type: 'Decimal(10,3)', req: true },
+      { name: 'unit_price', type: 'Decimal(15,2)', req: true },
+      { name: 'discount_rate', type: 'Decimal(5,2)', req: false },
+      { name: 'tax_rate', type: 'Decimal(5,2)', req: false },
+      { name: 'line_total', type: 'Decimal(15,2)', req: false },
+      { name: 'tax_amount', type: 'Decimal(15,2)', req: false },
+      { name: 'net_total', type: 'Decimal(15,2)', req: false },
+    ],
     events: [
       { name: 'before_create', label: 'Olusturma Oncesi', hasCode: true, code: 'this.status = "draft";' },
       { name: 'after_create', label: 'Olusturma Sonrasi', hasCode: false },
@@ -287,7 +307,22 @@ export function ConfiguratorPage() {
   const selectedProps = selectedNode ? MOCK_PROPERTIES[selectedNode] : null;
 
   return (
-    <div className="flex h-[calc(100vh-56px)] bg-gray-100">
+    <div className="flex flex-col h-[calc(100vh-56px)]">
+      {/* TOOLBAR */}
+      <div className="h-9 bg-white border-b border-gray-200 flex items-center px-3 gap-1.5 flex-shrink-0">
+        <button className="px-2.5 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 font-medium">💾 Kaydet</button>
+        <button className="px-2.5 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200">↺ Geri Al</button>
+        <div className="w-px h-4 bg-gray-300 mx-1" />
+        <button className="px-2.5 py-1 text-xs bg-emerald-600 text-white rounded hover:bg-emerald-700">▶ Calistir</button>
+        <button className="px-2.5 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200">🐛 Debug</button>
+        <div className="w-px h-4 bg-gray-300 mx-1" />
+        <button className="px-2.5 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200">📋 Dogrula</button>
+        <button className="px-2.5 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200">📦 Yayinla</button>
+        <div className="flex-1" />
+        <span className="text-[10px] text-gray-400">FLYX Studio v0.1.0</span>
+      </div>
+
+      <div className="flex flex-1 overflow-hidden bg-gray-100">
       {/* SOL: Configuration Agaci */}
       <div className="w-72 bg-white border-r border-gray-200 flex flex-col">
         {/* Baslik */}
@@ -514,10 +549,84 @@ export function ConfiguratorPage() {
                 </div>
               )}
 
-              {(activeTab === 'Kalemler' || activeTab === 'Boyutlar' || activeTab === 'Kaynaklar') && (
+              {/* Metodlar Tab */}
+              {activeTab === 'Metodlar' && selectedProps.methods && (
+                <div className="bg-white rounded-xl shadow-sm overflow-hidden max-w-3xl">
+                  <div className="px-6 py-3 bg-gray-50 border-b border-gray-100 flex justify-between items-center">
+                    <div>
+                      <h3 className="text-sm font-semibold text-gray-700">Metodlar</h3>
+                      <p className="text-xs text-gray-400 mt-0.5">FSL ile yazilmis is mantigi fonksiyonlari</p>
+                    </div>
+                    <button className="flex items-center gap-1 px-2 py-1 text-xs text-blue-600 hover:bg-blue-50 rounded">
+                      <Plus className="w-3 h-3" /> Metod Ekle
+                    </button>
+                  </div>
+                  <div className="divide-y divide-gray-100">
+                    {selectedProps.methods.map((m: any) => (
+                      <div key={m.name} className="px-6 py-3">
+                        <div className="flex items-center justify-between mb-1.5">
+                          <div className="flex items-center gap-2">
+                            <Code className="w-3.5 h-3.5 text-blue-500" />
+                            <span className="text-sm font-medium text-gray-700 font-mono">{m.name}({m.params})</span>
+                            <span className="text-[10px] text-gray-400">→ {m.returns}</span>
+                          </div>
+                          <button className="text-xs text-blue-600 hover:text-blue-800">Duzenle</button>
+                        </div>
+                        <pre className="px-3 py-2 bg-gray-900 rounded-lg text-xs font-mono text-green-400 overflow-x-auto whitespace-pre-wrap">
+                          {m.code}
+                        </pre>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Kalemler Tab (Document tabular section) */}
+              {activeTab === 'Kalemler' && selectedProps.lineFields && (
+                <div className="bg-white rounded-xl shadow-sm overflow-hidden max-w-3xl">
+                  <div className="px-6 py-3 bg-gray-50 border-b border-gray-100 flex justify-between items-center">
+                    <div>
+                      <h3 className="text-sm font-semibold text-gray-700">Kalem Alanlari (Tabular Section)</h3>
+                      <p className="text-xs text-gray-400 mt-0.5">Belge satirlarinda bulunan alanlar</p>
+                    </div>
+                    <button className="flex items-center gap-1 px-2 py-1 text-xs text-blue-600 hover:bg-blue-50 rounded">
+                      <Plus className="w-3 h-3" /> Alan Ekle
+                    </button>
+                  </div>
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-gray-100">
+                        <th className="px-4 py-2 text-left text-xs text-gray-500 font-medium w-8">#</th>
+                        <th className="px-4 py-2 text-left text-xs text-gray-500 font-medium">Alan Adi</th>
+                        <th className="px-4 py-2 text-left text-xs text-gray-500 font-medium">Veri Tipi</th>
+                        <th className="px-4 py-2 text-center text-xs text-gray-500 font-medium w-16">Zorunlu</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {selectedProps.lineFields.map((f: any, i: number) => (
+                        <tr key={f.name} className="border-b border-gray-50 hover:bg-blue-50/30">
+                          <td className="px-4 py-2 text-gray-400">{i + 1}</td>
+                          <td className="px-4 py-2 font-medium text-gray-700">{f.name}</td>
+                          <td className="px-4 py-2"><span className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-xs font-mono">{f.type}</span></td>
+                          <td className="px-4 py-2 text-center">{f.req ? '✓' : ''}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              {/* Kalemler/Boyutlar/Kaynaklar - icerik yoksa */}
+              {(activeTab === 'Kalemler' && !selectedProps.lineFields) && (
                 <div className="bg-white rounded-xl shadow-sm p-6 max-w-2xl">
-                  <h3 className="text-sm font-semibold text-gray-700 mb-4">{activeTab}</h3>
-                  <p className="text-sm text-gray-400">Bu sekme ileride aktif edilecek.</p>
+                  <h3 className="text-sm font-semibold text-gray-700 mb-2">Kalemler</h3>
+                  <p className="text-sm text-gray-400">Bu nesne icin tabular section tanimlanmamis.</p>
+                </div>
+              )}
+              {(activeTab === 'Boyutlar' || activeTab === 'Kaynaklar') && (
+                <div className="bg-white rounded-xl shadow-sm p-6 max-w-2xl">
+                  <h3 className="text-sm font-semibold text-gray-700 mb-2">{activeTab}</h3>
+                  <p className="text-sm text-gray-400">Register boyut/kaynak bilgileri.</p>
                 </div>
               )}
             </div>
@@ -560,6 +669,25 @@ ${selectedProps.fields?.map((f: any) => `    ${f.name}: ${f.type}${f.req ? ' { r
             </div>
           </div>
         )}
+      </div>
+      </div>
+
+      {/* STATUS BAR */}
+      <div className="h-6 bg-slate-800 text-slate-400 flex items-center px-3 text-[10px] flex-shrink-0">
+        <span className="flex items-center gap-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+          Bagli
+        </span>
+        <span className="mx-3">|</span>
+        <span>Konfigürasyon: FLYX ERP Demo</span>
+        <span className="mx-3">|</span>
+        <span>Nesneler: 50</span>
+        <span className="mx-3">|</span>
+        <span>Son degisiklik: henuz kaydedilmedi</span>
+        <div className="flex-1" />
+        <span>Tenant: demo</span>
+        <span className="mx-3">|</span>
+        <span>Kullanici: admin@flyx.com</span>
       </div>
     </div>
   );
