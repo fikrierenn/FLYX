@@ -17,6 +17,7 @@ import { UsersPage } from './pages/Users/UsersPage';
 import { PermissionsPage } from './pages/Permissions/PermissionsPage';
 import { DynamicEntityPage } from './pages/Data/DynamicEntityPage';
 import { SalesOrderPage } from './pages/SalesOrders/SalesOrderPage';
+import { ConfiguratorPage } from './pages/Configurator/ConfiguratorPage';
 
 function ProtectedLayout() {
   const { user, logout } = useAuthStore();
@@ -27,13 +28,12 @@ function ProtectedLayout() {
         <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
           <h1 className="text-lg font-bold text-blue-600">FLYX Platform</h1>
           <div className="flex items-center gap-1">
-            <a href="/" className="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100">Dashboard</a>
+            <a href="/configurator" className="px-3 py-2 rounded-md text-sm font-bold text-blue-600 hover:text-blue-800 hover:bg-blue-50">Configurator</a>
             <a href="/entities" className="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100">Entities</a>
             <a href="/forms" className="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100">Forms</a>
             <a href="/workflows" className="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100">Workflows</a>
             <a href="/reports" className="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100">Reports</a>
-            <a href="/sales" className="px-3 py-2 rounded-md text-sm font-medium text-green-600 hover:text-green-800 hover:bg-green-50 font-semibold">Siparisler</a>
-            <a href="/data" className="px-3 py-2 rounded-md text-sm font-medium text-blue-600 hover:text-blue-800 hover:bg-blue-50">Data</a>
+            <a href="/data" className="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100">Data</a>
             {user?.roles?.includes('admin') && (
               <>
                 <a href="/users" className="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100">Users</a>
@@ -50,7 +50,8 @@ function ProtectedLayout() {
       </nav>
       <main className="p-6">
         <Routes>
-          <Route path="/" element={<DashboardPage />} />
+          <Route path="/" element={<ConfiguratorPage />} />
+          <Route path="/configurator" element={<ConfiguratorPage />} />
           <Route path="/entities" element={<EntitiesPage />} />
           <Route path="/forms" element={<FormsPage />} />
           <Route path="/workflows" element={<WorkflowsPage />} />
