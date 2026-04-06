@@ -1,0 +1,62 @@
+// Satis Irsaliyesi (Sales Delivery Note)
+// Musteriye mal sevk belgesi.
+// Kayit edildiginde (posting) → StockBalance'ta stok AZALIR.
+// Genellikle SalesOrder onaylandiginda otomatik olusur.
+
+document SalesDelivery {
+  numbering: "SIR-{YYYY}-{SEQ:5}"
+
+  fields {
+    delivery_no: String(20) { required, unique, indexed }
+    customer: Relation(Customer) { required }
+    warehouse: Relation(Warehouse) { required }
+    delivery_date: Date { required }
+    sales_order: Relation(SalesOrder)
+    total_quantity: Decimal(10,3) { default: 0 }
+    carrier: String(200)
+    tracking_no: String(100)
+    status: Enum {
+      values: ["draft", "posted", "shipped", "delivered", "cancelled"],
+      default: "draft"
+    }
+    notes: Text
+  }
+
+  methods {
+    can_post() {
+      if (this.status != "draft") { return false; }
+      if (this.total_quantity == 0) { return false; }
+      return true;
+    }
+
+    can_ship() {
+      if (this.status != "posted") { return false; }
+      return true;
+    }
+
+    can_cancel() {
+      if (this.status == "shipped") { return false; }
+      if (this.status == "delivered") { return false; }
+      if (this.status == "cancelled") { return false; }
+      return true;
+    }
+  }
+
+  triggers {
+    before_create {
+      this.status = "draft";
+    }
+
+    // on_post {
+    //   // Her kalem icin stok dusur
+    //   // Stok yetersizse hata ver
+    // }
+  }
+
+  permissions {
+    create: ["admin"]
+    read: ["admin"]
+    update: ["admin"]
+    delete: ["admin"]
+  }
+}

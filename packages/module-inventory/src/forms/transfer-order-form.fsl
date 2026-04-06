@@ -1,0 +1,25 @@
+form TransferOrderForm {
+  entity: TransferOrder
+  layout: "two_column"
+
+  sections {
+    header {
+      label: "Transfer Bilgileri"
+      fields: ["transfer_no", "source_warehouse", "target_warehouse", "transfer_date", "status"]
+    }
+    totals {
+      label: "Toplamlar"
+      fields: ["total_quantity"]
+    }
+    notes {
+      label: "Notlar"
+      fields: ["notes"]
+    }
+  }
+
+  actions {
+    save { label: "Kaydet", style: "primary" }
+    post { label: "Kayit Et", style: "success" }
+    cancel { label: "Iptal", style: "secondary" }
+  }
+}

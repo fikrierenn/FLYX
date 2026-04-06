@@ -1,0 +1,52 @@
+// Transfer Emri (Stock Transfer Order)
+// Depolar arasi mal transfer belgesi.
+// Kayit edildiginde → kaynak depodan stok azalir, hedef depoya eklenir.
+
+document TransferOrder {
+  numbering: "TRN-{YYYY}-{SEQ:5}"
+
+  fields {
+    transfer_no: String(20) { required, unique, indexed }
+    source_warehouse: Relation(Warehouse) { required }
+    target_warehouse: Relation(Warehouse) { required }
+    transfer_date: Date { required }
+    total_quantity: Decimal(10,3) { default: 0 }
+    status: Enum {
+      values: ["draft", "posted", "in_transit", "received", "cancelled"],
+      default: "draft"
+    }
+    notes: Text
+  }
+
+  methods {
+    can_post() {
+      if (this.status != "draft") { return false; }
+      if (this.total_quantity == 0) { return false; }
+      return true;
+    }
+
+    can_receive() {
+      if (this.status != "in_transit") { return false; }
+      return true;
+    }
+
+    can_cancel() {
+      if (this.status == "received") { return false; }
+      if (this.status == "cancelled") { return false; }
+      return true;
+    }
+  }
+
+  triggers {
+    before_create {
+      this.status = "draft";
+    }
+  }
+
+  permissions {
+    create: ["admin"]
+    read: ["admin"]
+    update: ["admin"]
+    delete: ["admin"]
+  }
+}

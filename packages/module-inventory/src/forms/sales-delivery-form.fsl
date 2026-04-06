@@ -1,0 +1,26 @@
+form SalesDeliveryForm {
+  entity: SalesDelivery
+  layout: "two_column"
+
+  sections {
+    header {
+      label: "Irsaliye Bilgileri"
+      fields: ["delivery_no", "customer", "warehouse", "delivery_date", "sales_order", "status"]
+    }
+    shipping {
+      label: "Sevkiyat"
+      fields: ["carrier", "tracking_no"]
+    }
+    notes {
+      label: "Notlar"
+      fields: ["notes"]
+    }
+  }
+
+  actions {
+    save { label: "Kaydet", style: "primary" }
+    post { label: "Kayit Et", style: "success" }
+    ship { label: "Sevk Et", style: "primary" }
+    cancel { label: "Iptal", style: "secondary" }
+  }
+}

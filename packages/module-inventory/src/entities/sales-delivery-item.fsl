@@ -1,0 +1,21 @@
+// Satis Irsaliyesi Kalemi
+// Sevk edilen her urunun miktar bilgisi.
+
+entity SalesDeliveryItem {
+  fields {
+    sales_delivery: Relation(SalesDelivery) { required }
+    product: Relation(Product) { required }
+    quantity: Decimal(10,3) { required, min: 0 }
+    unit: String(20) { default: "ADET" }
+    lot_no: String(50)
+    serial_no: String(50)
+    notes: String(500)
+  }
+
+  permissions {
+    create: ["admin"]
+    read: ["admin"]
+    update: ["admin"]
+    delete: ["admin"]
+  }
+}

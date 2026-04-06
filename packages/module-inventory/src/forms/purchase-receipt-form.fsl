@@ -1,0 +1,25 @@
+form PurchaseReceiptForm {
+  entity: PurchaseReceipt
+  layout: "two_column"
+
+  sections {
+    header {
+      label: "Irsaliye Bilgileri"
+      fields: ["receipt_no", "supplier", "warehouse", "receipt_date", "purchase_order", "status"]
+    }
+    totals {
+      label: "Toplamlar"
+      fields: ["total_quantity", "total_cost"]
+    }
+    notes {
+      label: "Notlar"
+      fields: ["notes"]
+    }
+  }
+
+  actions {
+    save { label: "Kaydet", style: "primary" }
+    post { label: "Kayit Et", style: "success" }
+    cancel { label: "Iptal", style: "secondary" }
+  }
+}

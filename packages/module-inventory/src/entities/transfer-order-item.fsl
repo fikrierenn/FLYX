@@ -1,0 +1,20 @@
+// Transfer Emri Kalemi
+// Transfer edilecek her urunun miktar bilgisi.
+
+entity TransferOrderItem {
+  fields {
+    transfer_order: Relation(TransferOrder) { required }
+    product: Relation(Product) { required }
+    quantity: Decimal(10,3) { required, min: 0 }
+    unit: String(20) { default: "ADET" }
+    lot_no: String(50)
+    notes: String(500)
+  }
+
+  permissions {
+    create: ["admin"]
+    read: ["admin"]
+    update: ["admin"]
+    delete: ["admin"]
+  }
+}

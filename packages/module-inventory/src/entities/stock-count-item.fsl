@@ -1,0 +1,37 @@
+// Sayim Fisi Kalemi
+// Sayimda her urunun beklenen ve sayilan miktar bilgisi.
+// Fark otomatik hesaplanir.
+
+entity StockCountItem {
+  fields {
+    stock_count: Relation(StockCount) { required }
+    product: Relation(Product) { required }
+    expected_quantity: Decimal(10,3) { default: 0 }
+    counted_quantity: Decimal(10,3) { required, min: 0 }
+    difference: Decimal(10,3) { default: 0 }
+    unit: String(20) { default: "ADET" }
+    notes: String(500)
+  }
+
+  methods {
+    calculate() {
+      this.difference = this.counted_quantity - this.expected_quantity;
+    }
+  }
+
+  triggers {
+    before_create {
+      this.calculate();
+    }
+    before_update {
+      this.calculate();
+    }
+  }
+
+  permissions {
+    create: ["admin"]
+    read: ["admin"]
+    update: ["admin"]
+    delete: ["admin"]
+  }
+}

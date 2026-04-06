@@ -1,0 +1,62 @@
+// Alis Irsaliyesi (Purchase Receipt / Goods Receipt Note)
+// Tedarikciden mal kabul belgesi.
+// Kayit edildiginde (posting) → StockBalance register'inda stok ARTAR.
+// 1C'deki "Belge.MalKabul" karsiligi.
+
+document PurchaseReceipt {
+  numbering: "AIR-{YYYY}-{SEQ:5}"
+
+  fields {
+    receipt_no: String(20) { required, unique, indexed }
+    supplier: Relation(Supplier) { required }
+    warehouse: Relation(Warehouse) { required }
+    receipt_date: Date { required }
+    purchase_order: Relation(PurchaseOrder)
+    total_quantity: Decimal(10,3) { default: 0 }
+    total_cost: Decimal(15,2) { default: 0 }
+    status: Enum {
+      values: ["draft", "posted", "cancelled"],
+      default: "draft"
+    }
+    notes: Text
+  }
+
+  methods {
+    can_post() {
+      if (this.status != "draft") { return false; }
+      if (this.total_quantity == 0) { return false; }
+      return true;
+    }
+
+    can_cancel() {
+      if (this.status == "cancelled") { return false; }
+      return true;
+    }
+  }
+
+  triggers {
+    before_create {
+      this.status = "draft";
+    }
+
+    // Kayit etme (posting) - stok artisi
+    // on_post {
+    //   // Her kalem icin StockBalance'ta stok arttir
+    //   // create(StockMovementRecord, {
+    //   //   product: line.product,
+    //   //   warehouse: this.warehouse,
+    //   //   quantity: line.quantity,
+    //   //   movement_type: "in",
+    //   //   source_document: "PurchaseReceipt",
+    //   //   source_no: this.receipt_no
+    //   // });
+    // }
+  }
+
+  permissions {
+    create: ["admin"]
+    read: ["admin"]
+    update: ["admin"]
+    delete: ["admin"]
+  }
+}
