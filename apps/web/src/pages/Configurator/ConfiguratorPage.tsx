@@ -148,7 +148,16 @@ const MOCK_PROPERTIES: Record<string, any> = {
       { label: 'Modul', value: 'Satis' },
       { label: 'Durum', value: 'Aktif' },
     ],
-    tabs: ['Genel', 'Alanlar', 'Formlar', 'Komutlar', 'Haklar'],
+    tabs: ['Genel', 'Alanlar', 'Olaylar', 'Formlar', 'Komutlar', 'Haklar'],
+    events: [
+      { name: 'before_create', label: 'Olusturma Oncesi', hasCode: false },
+      { name: 'after_create', label: 'Olusturma Sonrasi', hasCode: true, code: 'send_email({ to: this.email, template: "welcome" });' },
+      { name: 'before_update', label: 'Guncelleme Oncesi', hasCode: false },
+      { name: 'after_update', label: 'Guncelleme Sonrasi', hasCode: false },
+      { name: 'before_delete', label: 'Silme Oncesi', hasCode: false },
+      { name: 'on_open', label: 'Form Acildiginda', hasCode: false },
+      { name: 'validate', label: 'Dogrulama', hasCode: false },
+    ],
     fields: [
       { name: 'code', type: 'String(50)', req: true, uniq: true },
       { name: 'name', type: 'String(200)', req: true, uniq: false },
@@ -168,7 +177,17 @@ const MOCK_PROPERTIES: Record<string, any> = {
       { label: 'Durum Akisi', value: 'draft → confirmed → shipped' },
       { label: 'Modul', value: 'Satis' },
     ],
-    tabs: ['Genel', 'Alanlar', 'Kalemler', 'Formlar', 'Komutlar', 'Haklar'],
+    tabs: ['Genel', 'Alanlar', 'Kalemler', 'Olaylar', 'Formlar', 'Komutlar', 'Haklar'],
+    events: [
+      { name: 'before_create', label: 'Olusturma Oncesi', hasCode: true, code: 'this.status = "draft";' },
+      { name: 'after_create', label: 'Olusturma Sonrasi', hasCode: false },
+      { name: 'before_update', label: 'Guncelleme Oncesi', hasCode: false },
+      { name: 'after_update', label: 'Guncelleme Sonrasi', hasCode: false },
+      { name: 'on_post', label: 'Kayit Etme (Posting)', hasCode: true, code: '// Stok dusumu + muhasebe fisi olustur' },
+      { name: 'on_unpost', label: 'Kayit Geri Alma', hasCode: false },
+      { name: 'validate', label: 'Dogrulama', hasCode: true, code: 'if (this.total == 0) { return false; }' },
+      { name: 'on_status_change', label: 'Durum Degisimi', hasCode: true, code: '// draft → confirmed → shipped' },
+    ],
     fields: [
       { name: 'order_no', type: 'String(20)', req: true, uniq: true },
       { name: 'customer', type: 'Relation(Customer)', req: true, uniq: false },
@@ -462,6 +481,36 @@ export function ConfiguratorPage() {
                       </tr>
                     </tbody>
                   </table>
+                </div>
+              )}
+
+              {activeTab === 'Olaylar' && selectedProps.events && (
+                <div className="bg-white rounded-xl shadow-sm overflow-hidden max-w-3xl">
+                  <div className="px-6 py-3 bg-gray-50 border-b border-gray-100">
+                    <h3 className="text-sm font-semibold text-gray-700">Olaylar (Events)</h3>
+                    <p className="text-xs text-gray-400 mt-0.5">Nesne yasam dongusunde tetiklenen FSL kod bloklari</p>
+                  </div>
+                  <div className="divide-y divide-gray-100">
+                    {selectedProps.events.map((ev: any) => (
+                      <div key={ev.name} className="px-6 py-3">
+                        <div className="flex items-center justify-between mb-1">
+                          <div className="flex items-center gap-2">
+                            <span className={`w-2 h-2 rounded-full ${ev.hasCode ? 'bg-emerald-500' : 'bg-gray-300'}`} />
+                            <span className="text-sm font-medium text-gray-700">{ev.label}</span>
+                            <span className="text-[10px] font-mono text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">{ev.name}</span>
+                          </div>
+                          <button className="text-xs text-blue-600 hover:text-blue-800">
+                            {ev.hasCode ? 'Duzenle' : '+ Kod Ekle'}
+                          </button>
+                        </div>
+                        {ev.hasCode && ev.code && (
+                          <pre className="mt-1.5 px-3 py-2 bg-gray-900 rounded-lg text-xs font-mono text-green-400 overflow-x-auto">
+                            {ev.code}
+                          </pre>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
 
