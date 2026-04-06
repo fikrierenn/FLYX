@@ -37,10 +37,10 @@ export function Sidebar() {
             <button
               key={item.path}
               onClick={() => navigate(item.path)}
-              className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${
+              className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-all ${
                 active
-                  ? 'bg-blue-600 text-white'
-                  : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                  ? 'bg-blue-600/90 text-white rounded-r-lg ml-0 mr-2 shadow-lg shadow-blue-500/20'
+                  : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'
               }`}
             >
               <item.icon className="w-4 h-4" />

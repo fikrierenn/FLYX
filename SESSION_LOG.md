@@ -288,10 +288,76 @@ Detay: docs/ERP_LANGUAGE_RESEARCH.md (6 dil, karsilastirma matrisi, FSL icin 10 
 
 ---
 
-## SONRAKI SESSION YAPILACAKLAR
+## KRITIK KARAR: 1C NESNE YAPISI → FSL
 
-1. FSL'e transaction blogu ekle (ABAP LUW)
-2. FSL'e entity inheritance ekle (X++ extends)
-3. Build-time form uretimi (`flyx build` → React components)
-4. SalesOrder ekranini tamamen FSL ile tanimla (TS kodu kaldir)
-5. Kalan ERP ekranlari (fatura, irsaliye, stok hareketi)
+1C'nin nesne modeli FSL'e uyarlanacak:
+
+| 1C Nesnesi | FSL Karsiligi | Aciklama |
+|---|---|---|
+| Catalog | `entity` (mevcut) | Ana veri (musteri, urun, depo) |
+| Document | `document` (YENI) | Belge (siparis, fatura) - numaralama + durum + satirlar |
+| Register | `register` (YENI) | Hareket (stok, cari, muhasebe) - boyut + kaynak + bakiye |
+| Report | `report` (mevcut) | Rapor |
+| Form | `form` (mevcut) | Ekran - 1C gibi runtime duzenlenebilir |
+| Enum | Enum tipi (mevcut) | Sabit deger listesi |
+
+### Document Syntax:
+```fsl
+document SalesOrder {
+  numbering: "SIP-{YYYY}-{SEQ:4}"
+  status_flow: draft → confirmed → shipped
+  header {
+    customer: Relation(Customer) { required }
+    order_date: Date { required }
+  }
+  lines {
+    entity: SalesOrderItem
+    fields: ["product", "quantity", "unit_price", "tax_rate", "net_total"]
+  }
+  totals {
+    subtotal: sum("line_total")
+    tax: sum("tax_amount")
+    grand_total: sum("net_total")
+  }
+}
+```
+
+### Register Syntax:
+```fsl
+register StockBalance {
+  dimensions: [product, warehouse]
+  resources: [quantity]
+  // Otomatik bakiye: giris - cikis = kalan
+}
+```
+
+## KRITIK KARAR: FORM RENDERER (1C BENZERI)
+
+TSX ile ERP ekrani YAZILMAYACAK. Tum ekranlar FSL'den render edilecek.
+Ekranlar 1C gibi runtime'da duzenlenebilir olacak.
+
+### Renderer Yapisi:
+```
+packages/form-renderer/
+  engine/FormEngine.ts       - FSL Form → React render
+  engine/FieldRenderer.tsx   - Alan tiplerine gore input
+  engine/GridRenderer.tsx    - Kalem tablosu (master-detail)
+  engine/TotalsRenderer.tsx  - Alt toplamlar
+  engine/ActionRenderer.tsx  - Butonlar + durum gecisi
+  engine/MenuBuilder.ts      - FSL modullerden otomatik menu
+  designer/FormCustomizer.tsx - 1C benzeri runtime duzenleme
+  hooks/useFormData.ts       - Form state
+  hooks/useTrigger.ts        - FSL trigger calistirma
+  hooks/useLookup.ts         - Relation arama
+  hooks/usePermission.ts     - Yetki kontrolu
+```
+
+## UYGULAMA SIRASI (SIMDI)
+
+1. FSL'e `document` ve `register` keyword ekle (compiler)
+2. form-renderer paketi olustur
+3. FormEngine: FSL Form → React otomatik render
+4. GridRenderer + TotalsRenderer (master-detail)
+5. Stok modulu FSL document + register ile
+6. FormCustomizer (1C benzeri duzenleme)
+7. Tum TSX ERP ekranlarini kaldir
