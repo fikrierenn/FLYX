@@ -19,7 +19,7 @@ import { CstParser } from 'chevrotain';
 import {
   allTokens,
   // Keywords - Declaration
-  Module, Entity, Form, Report, Workflow, Dashboard,
+  Module, Entity, Form, Report, Workflow, Dashboard, Document, Register,
   // Keywords - Blocks
   Fields, Methods, Permissions, Validation, Triggers,
   Sections, Actions, Parameters, Columns, Visualizations, Steps,
@@ -112,7 +112,49 @@ export class FSLParser extends CstParser {
       { ALT: () => this.SUBRULE(this.reportDeclaration) },
       { ALT: () => this.SUBRULE(this.workflowDeclaration) },
       { ALT: () => this.SUBRULE(this.dashboardDeclaration) },
+      { ALT: () => this.SUBRULE(this.documentDeclaration) },
+      { ALT: () => this.SUBRULE(this.registerDeclaration) },
     ]);
+  });
+
+  // ============================================================
+  // DOCUMENT (Belge) KURALLARI
+  // document İsim { fields { ... } methods { ... } permissions { ... } triggers { ... } numbering: "..." }
+  // ============================================================
+
+  public documentDeclaration = this.RULE('documentDeclaration', () => {
+    this.CONSUME(Document);
+    this.CONSUME(Identifier);
+    this.CONSUME(LCurly);
+    this.MANY(() => {
+      this.OR3([
+        { ALT: () => this.SUBRULE(this.fieldsBlock) },
+        { ALT: () => this.SUBRULE(this.methodsBlock) },
+        { ALT: () => this.SUBRULE(this.permissionsBlock) },
+        { ALT: () => this.SUBRULE(this.triggersBlock) },
+        { ALT: () => this.SUBRULE(this.formProperty) },
+      ]);
+    });
+    this.CONSUME(RCurly);
+  });
+
+  // ============================================================
+  // REGISTER (Kayıt) KURALLARI
+  // register İsim { fields { ... } permissions { ... } dimensions: [...] resources: [...] }
+  // ============================================================
+
+  public registerDeclaration = this.RULE('registerDeclaration', () => {
+    this.CONSUME(Register);
+    this.CONSUME(Identifier);
+    this.CONSUME(LCurly);
+    this.MANY(() => {
+      this.OR4([
+        { ALT: () => this.SUBRULE(this.fieldsBlock) },
+        { ALT: () => this.SUBRULE(this.permissionsBlock) },
+        { ALT: () => this.SUBRULE(this.formProperty) },
+      ]);
+    });
+    this.CONSUME(RCurly);
   });
 
   // ============================================================
@@ -439,6 +481,8 @@ export class FSLParser extends CstParser {
       { ALT: () => this.CONSUME(Form) },
       { ALT: () => this.CONSUME(Workflow) },
       { ALT: () => this.CONSUME(Dashboard) },
+      { ALT: () => this.CONSUME(Document) },
+      { ALT: () => this.CONSUME(Register) },
       { ALT: () => this.CONSUME(Fields) },
       { ALT: () => this.CONSUME(Actions) },
       { ALT: () => this.CONSUME(Permissions) },

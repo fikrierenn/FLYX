@@ -151,6 +151,8 @@ export class CSTToASTVisitor extends BaseCstVisitor {
     if (ctx.reportDeclaration) return this.visit(ctx.reportDeclaration[0]);
     if (ctx.workflowDeclaration) return this.visit(ctx.workflowDeclaration[0]);
     if (ctx.dashboardDeclaration) return this.visit(ctx.dashboardDeclaration[0]);
+    if (ctx.documentDeclaration) return this.visit(ctx.documentDeclaration[0]);
+    if (ctx.registerDeclaration) return this.visit(ctx.registerDeclaration[0]);
     throw new Error('Unknown declaration type');
   }
 
@@ -864,6 +866,79 @@ export class CSTToASTVisitor extends BaseCstVisitor {
       }
     }
     return dashboard;
+  }
+
+  // ============================================================
+  // DOCUMENT (Belge) DÖNÜŞÜMÜ
+  // ============================================================
+
+  documentDeclaration(ctx: any): any {
+    const name = this.extractImage(ctx.Identifier[0]);
+    const doc: any = {
+      type: 'DocumentDeclaration',
+      name,
+      fields: [],
+      location: this.tokenToLocation(ctx.Identifier[0]),
+    };
+
+    // Blokları işle (entityDeclaration ile aynı desen)
+    if (ctx.fieldsBlock) {
+      const result = this.visit(ctx.fieldsBlock[0]);
+      doc.fields = result.fields;
+    }
+    if (ctx.methodsBlock) {
+      doc.methods = this.visit(ctx.methodsBlock[0]).methods;
+    }
+    if (ctx.permissionsBlock) {
+      doc.permissions = this.visit(ctx.permissionsBlock[0]).permissions;
+    }
+    if (ctx.triggersBlock) {
+      doc.triggers = this.visit(ctx.triggersBlock[0]).triggers;
+    }
+    // Özellikler (numbering, status_flow, lines, totals)
+    if (ctx.formProperty) {
+      for (const prop of ctx.formProperty) {
+        const { _type, key, value } = this.visit(prop);
+        if (key === 'numbering') doc.numbering = value;
+        if (key === 'status_flow') doc.statusFlow = value;
+        if (key === 'lines') doc.linesEntity = value;
+      }
+    }
+
+    return doc;
+  }
+
+  // ============================================================
+  // REGISTER (Kayıt) DÖNÜŞÜMÜ
+  // ============================================================
+
+  registerDeclaration(ctx: any): any {
+    const name = this.extractImage(ctx.Identifier[0]);
+    const reg: any = {
+      type: 'RegisterDeclaration',
+      name,
+      dimensions: [],
+      resources: [],
+      fields: [],
+    };
+
+    if (ctx.fieldsBlock) {
+      const result = this.visit(ctx.fieldsBlock[0]);
+      reg.fields = result.fields;
+    }
+    if (ctx.permissionsBlock) {
+      reg.permissions = this.visit(ctx.permissionsBlock[0]).permissions;
+    }
+    if (ctx.formProperty) {
+      for (const prop of ctx.formProperty) {
+        const { _type, key, value } = this.visit(prop);
+        if (key === 'dimensions') reg.dimensions = value;
+        if (key === 'resources') reg.resources = value;
+        if (key === 'source_document') reg.sourceDocument = value;
+      }
+    }
+
+    return reg;
   }
 
   // ============================================================

@@ -52,6 +52,8 @@ export const MultiLineComment = createToken({
 
 export const Module = createToken({ name: 'Module', pattern: /module/, longer_alt: Identifier });
 export const Entity = createToken({ name: 'Entity', pattern: /entity/, longer_alt: Identifier });
+export const Document = createToken({ name: 'Document', pattern: /document/, longer_alt: Identifier });
+export const Register = createToken({ name: 'Register', pattern: /register/, longer_alt: Identifier });
 export const Form = createToken({ name: 'Form', pattern: /form/, longer_alt: Identifier });
 export const Report = createToken({ name: 'Report', pattern: /report/, longer_alt: Identifier });
 export const Workflow = createToken({ name: 'Workflow', pattern: /workflow/, longer_alt: Identifier });
@@ -277,6 +279,8 @@ export const allTokens = [
   // Bildirim anahtar kelimeleri
   Module,
   Entity,
+  Document,
+  Register,
   Form,
   Report,
   Workflow,

@@ -50,15 +50,61 @@ export interface ModuleDeclaration extends ASTNode {
 /** FSL'in desteklediği tüm üst düzey bildirim tipleri */
 export type Declaration =
   | EntityDeclaration
+  | DocumentDeclaration
+  | RegisterDeclaration
   | FormDeclaration
   | ReportDeclaration
   | WorkflowDeclaration
   | DashboardDeclaration;
 
 // ============================================================
-// Entity (Varlık)
-// Veritabanı tablosuna karşılık gelen temel veri modeli.
-// Alanlar, metodlar, izinler, tetikleyiciler ve doğrulama kuralları içerir.
+// Document (Belge) - 1C Document karsiligi
+// Siparis, fatura, irsaliye gibi islem belgeleri.
+// Entity'den farki: numbering, status_flow, lines (master-detail), totals
+// ============================================================
+
+export interface DocumentDeclaration extends ASTNode {
+  type: 'DocumentDeclaration';
+  name: string;
+  /** Belge numaralama pattern'i: "SIP-{YYYY}-{SEQ:4}" */
+  numbering?: string;
+  /** Durum akisi: draft → confirmed → shipped */
+  statusFlow?: string[];
+  /** Baslik alanlari */
+  fields: FieldDeclaration[];
+  /** Kalem entity'si (master-detail iliskisi) */
+  linesEntity?: string;
+  /** Kalem alanlarinddan gosterilecekler */
+  linesFields?: string[];
+  /** Toplam hesaplamalari: { subtotal: "sum(line_total)", tax: "sum(tax_amount)" } */
+  totals?: Record<string, string>;
+  methods?: MethodDeclaration[];
+  permissions?: PermissionBlock;
+  triggers?: TriggerBlock;
+}
+
+// ============================================================
+// Register (Hareket Kaydi) - 1C Register karsiligi
+// Stok, cari hesap, muhasebe hareketleri.
+// Dimensions (boyutlar) + Resources (kaynaklar) ile otomatik bakiye hesaplama.
+// ============================================================
+
+export interface RegisterDeclaration extends ASTNode {
+  type: 'RegisterDeclaration';
+  name: string;
+  /** Boyutlar: hangi alanlara gore gruplanir (product, warehouse) */
+  dimensions: string[];
+  /** Kaynaklar: hangi degerler toplanir (quantity, amount) */
+  resources: string[];
+  /** Kaynak entity: hangi belgeden hareket olusur */
+  sourceDocument?: string;
+  fields: FieldDeclaration[];
+  permissions?: PermissionBlock;
+}
+
+// ============================================================
+// Entity (Varlık) - 1C Catalog karsiligi
+// Ana veri: musteri, urun, depo gibi referans verileri.
 // ============================================================
 
 export interface EntityDeclaration extends ASTNode {
